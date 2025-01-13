@@ -38,15 +38,10 @@ pub struct Color {
     pub b: f32,
 }
 
-pub trait Renderer {
-    /// Creates renderer for specified window
-    fn create_for_window(window: &Window) -> Self
-    where
-        Self: Sized;
-
-    /// Returns the size of the render window
-    fn size(&self) -> Size<f32>;
-
+/// Drawing session to draw on a surface.
+/// Use Renderer::begin_draw to get a DrawingSession from the renderer in use.
+/// Call Renderer::end_draw to submit the changes to the surface.
+pub trait DrawingSession {
     /// Draw a text to the game window
     fn draw_text(&self, text: &String, format: &TextFormat, coord: &Rect<f32>);
 
@@ -58,4 +53,22 @@ pub trait Renderer {
 
     /// Draw a circle centered at 'center' with given 'radius'
     fn draw_circle_centered_at(&self, center: &Vector2<f32>, radius: f32, color: &Color);
+}
+
+pub trait Renderer<'a, T: 'a + DrawingSession> {
+    /// Creates renderer for specified window
+    fn create_for_window(window: &Window) -> Self
+    where
+        Self: Sized;
+
+    /// Returns the size of the render target
+    fn size(&'a self) -> Size<f32>;
+
+    /// Returns a drawing session to draw on the window
+    fn begin_draw(&'a self) -> T;
+
+    /// Ends the drawing session, submitting the changes to the window
+    /// This method should be called after all drawing operations are done
+    /// to display the changes on the window
+    fn end_draw(&'a self, drawing_session: T);
 }

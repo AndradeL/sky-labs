@@ -18,6 +18,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 mod text;
+mod drawing_session;
 
 use crate::{
     math::{Size, Vector2},
@@ -25,14 +26,17 @@ use crate::{
     window::Window,
 };
 
+use drawing_session::Direct3D12DrawingSession;
 use windows::Win32::Graphics::{
     Direct3D::*,
     Direct3D12::*,
     Dxgi::{Common::*, *},
 };
 
+/// Number of frames in the swap chain
 const FRAME_COUNT: u32 = 2;
 
+/// Direct3D12 Renderer
 pub struct Direct3D12Renderer {
     device: ID3D12Device,
     command_queue: ID3D12CommandQueue,
@@ -43,9 +47,10 @@ pub struct Direct3D12Renderer {
     command_allocator: ID3D12CommandAllocator,
 }
 
-impl Renderer for Direct3D12Renderer {
+impl<'a> Renderer<'a, Direct3D12DrawingSession<'a>> for Direct3D12Renderer {
+    /// Creates renderer that draws directly into the specified window
     fn create_for_window(window: &Window) -> Self {
-        // #[cfg(debug_assertions)]
+        #[cfg(debug_assertions)]
         enable_debug().unwrap();
 
         let device = create_d3d_device().unwrap();
@@ -91,7 +96,8 @@ impl Renderer for Direct3D12Renderer {
         }
     }
 
-    fn size(&self) -> Size<f32> {
+    /// Returns the size of the final draw size
+    fn size(&'a self) -> Size<f32> {
         let result = unsafe { self.swap_chain.GetDesc1() };
         match result {
             Ok(desc) => Size::<f32> {
@@ -104,21 +110,12 @@ impl Renderer for Direct3D12Renderer {
             }
         }
     }
-
-    fn draw_text(&self, text: &String, format: &TextFormat, rect: &Rect<f32>) {
-        let text_renderer = text::Direct3D12TextRenderer::create_for_renderer(self);
-        text_renderer.render_text(text, format, rect).unwrap();
+    
+    fn begin_draw(&'a self) -> Direct3D12DrawingSession<'a> {
+        Direct3D12DrawingSession(&self)
     }
-
-    fn draw_rectangle(&self, rect: &Rect<f32>, color: &Color) {
-        todo!()
-    }
-
-    fn draw_circle(&self, bounds: &Rect<f32>, color: &Color) {
-        todo!()
-    }
-
-    fn draw_circle_centered_at(&self, center: &Vector2<f32>, radius: f32, color: &Color) {
+    
+    fn end_draw(&'a self, _drawing_session: Direct3D12DrawingSession<'a>) {
         todo!()
     }
 }
