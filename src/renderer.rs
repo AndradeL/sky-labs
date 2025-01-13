@@ -17,13 +17,29 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+use std::ops::Deref;
+
+use crate::win::renderer_d3d12::Direct3D12Renderer;
+
 use super::{
     math::{Size, Vector2, Rect},
     window::Window,
 };
 
 #[cfg(target_os = "windows")]
-pub use super::win::renderer_d3d12::Direct3D12Renderer as DefaultRenderer;
+pub struct DefaultRenderer(Direct3D12Renderer);
+impl DefaultRenderer {
+    pub fn create_for_window(window: &Window) -> Self {
+        DefaultRenderer(Direct3D12Renderer::create_for_window(window))
+    }
+}
+impl Deref for DefaultRenderer {
+    type Target = Direct3D12Renderer;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 pub enum RendererType {
     Direct2D,

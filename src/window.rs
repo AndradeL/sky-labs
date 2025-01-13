@@ -17,6 +17,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+use std::ops::{Deref, DerefMut};
+
 use super::math::Size;
 
 #[cfg(target_os = "windows")]
@@ -38,34 +40,19 @@ pub enum WindowProcessResult {
     Error(String), // TODO Add error info
 }
 
-struct WindowGeneric<TNativeWindow: NativeWindow> {
-    native_window: TNativeWindow,
+struct WindowGeneric<TNativeWindow: NativeWindow>(TNativeWindow);
+
+impl<T: NativeWindow> Deref for WindowGeneric<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
-impl<T> WindowGeneric<T>
-where
-    T: NativeWindow,
-{
-    pub fn create() -> Self {
-        Self {
-            native_window: T::create(),
-        }
-    }
-
-    pub fn size(&self) -> Size<u32> {
-        self.native_window.size()
-    }
-
-    pub fn process_until_end(&mut self) {
-        self.native_window.process_until_end();
-    }
-
-    pub fn process_message_if_available(&mut self) -> WindowProcessResult {
-        self.native_window.process_message_if_available()
-    }
-
-    pub fn native_window_handle(&self) -> NativeWindowHandle {
-        self.native_window.handle()
+impl<T: NativeWindow> DerefMut for WindowGeneric<T> {    
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 
@@ -78,7 +65,7 @@ impl Window {
     pub fn create() -> Self {
         Self {
             #[cfg(target_os = "windows")]
-            window_generic: WindowGeneric::<Win32Window>::create(),
+            window_generic: WindowGeneric::<Win32Window>(Win32Window::create()),
         }
     }
 
@@ -95,6 +82,6 @@ impl Window {
     }
 
     pub fn native_window_handle(&self) -> NativeWindowHandle {
-        self.window_generic.native_window_handle()
+        self.window_generic.handle()
     }
 }
