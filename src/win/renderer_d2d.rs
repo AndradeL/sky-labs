@@ -40,15 +40,15 @@ impl Renderer for Direct2DRenderer {
         todo!()
     }
     
-    fn draw_text(&self, text: &String, format: &TextFormat, coord: &Rect) {
+    fn draw_text(&self, text: &String, format: &TextFormat, coord: &Rect<f32>) {
         todo!()
     }
     
-    fn draw_rectangle(&self, rect: &Rect, color: &Color) {
+    fn draw_rectangle(&self, rect: &Rect<f32>, color: &Color) {
         todo!()
     }
     
-    fn draw_circle(&self, bounds: &Rect, color: &Color) {
+    fn draw_circle(&self, bounds: &Rect<f32>, color: &Color) {
         todo!()
     }
     

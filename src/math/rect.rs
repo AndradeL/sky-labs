@@ -17,31 +17,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-mod vector2;
-mod vector3;
-mod matrix3x3;
-mod matrix4x4;
-mod number;
-mod abs;
-mod interval;
-mod as_double;
-mod size;
-mod rect;
+use super::Number;
 
-pub(self) use self::abs::Abs;
-pub(self) use self::number::Number;
-pub(self) use self::as_double::AsDouble;
-pub(self) use self::as_double::FromDouble;
-pub use self::vector2::Vector2;
-pub use self::vector3::Vector3;
-pub use self::matrix3x3::Matrix3x3;
-pub use self::size::Size;
-pub use self::rect::Rect;
-
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Direction {
-    North,
-    East,
-    South,
-    West,
+#[derive(Clone, Copy, Default, Debug)]
+pub struct Rect<T:Number> {
+    pub x: T,
+    pub y: T,
+    pub width: T,
+    pub height: T,
 }
+
+// TODO: Implement methods for Rect

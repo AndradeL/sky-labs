@@ -18,7 +18,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use super::{
-    math::{size::Size, Vector2},
+    math::{Size, Vector2, Rect},
     window::Window,
 };
 
@@ -31,14 +31,6 @@ pub enum RendererType {
 }
 
 pub struct TextFormat {}
-
-#[derive(Clone, Copy, Default, Debug)]
-pub struct Rect {
-    pub x: f32,
-    pub y: f32,
-    pub width: f32,
-    pub height: f32,
-}
 
 pub struct Color {
     pub r: f32,
@@ -56,13 +48,13 @@ pub trait Renderer {
     fn size(&self) -> Size<f32>;
 
     /// Draw a text to the game window
-    fn draw_text(&self, text: &String, format: &TextFormat, coord: &Rect);
+    fn draw_text(&self, text: &String, format: &TextFormat, coord: &Rect<f32>);
 
     /// Draw a rectangle to the game window
-    fn draw_rectangle(&self, rect: &Rect, color: &Color);
+    fn draw_rectangle(&self, rect: &Rect<f32>, color: &Color);
 
     /// Draw a circle within bounds to the game window
-    fn draw_circle(&self, bounds: &Rect, color: &Color);
+    fn draw_circle(&self, bounds: &Rect<f32>, color: &Color);
 
     /// Draw a circle centered at 'center' with given 'radius'
     fn draw_circle_centered_at(&self, center: &Vector2<f32>, radius: f32, color: &Color);

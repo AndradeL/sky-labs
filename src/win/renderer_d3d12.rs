@@ -105,16 +105,16 @@ impl Renderer for Direct3D12Renderer {
         }
     }
 
-    fn draw_text(&self, text: &String, format: &TextFormat, rect: &Rect) {
+    fn draw_text(&self, text: &String, format: &TextFormat, rect: &Rect<f32>) {
         let text_renderer = text::Direct3D12TextRenderer::create_for_renderer(self);
         text_renderer.render_text(text, format, rect).unwrap();
     }
 
-    fn draw_rectangle(&self, rect: &Rect, color: &Color) {
+    fn draw_rectangle(&self, rect: &Rect<f32>, color: &Color) {
         todo!()
     }
 
-    fn draw_circle(&self, bounds: &Rect, color: &Color) {
+    fn draw_circle(&self, bounds: &Rect<f32>, color: &Color) {
         todo!()
     }
 

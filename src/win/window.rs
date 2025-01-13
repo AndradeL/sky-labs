@@ -32,7 +32,7 @@ use windows::{
 };
 
 use crate::{
-    math::size::Size,
+    math::Size,
     window::{NativeWindow, WindowProcessResult},
 };
 
@@ -87,7 +87,7 @@ impl NativeWindow for Win32Window {
         }
     }
 
-    fn size(&self) -> crate::math::size::Size<u32> {
+    fn size(&self) -> crate::math::Size<u32> {
         self.size
     }
 

@@ -65,7 +65,7 @@ impl<'a> Direct3D12TextRenderer<'a> {
         }
     }
 
-    pub fn render_text(self, text: &String, format: &TextFormat, rect: &Rect) -> Result<()> {
+    pub fn render_text(self, text: &String, format: &TextFormat, rect: &Rect<f32>) -> Result<()> {
         let windows_str = HSTRING::from(text);
         let text_layout = unsafe {
             self.factory
@@ -206,7 +206,7 @@ impl<'a> IDWriteTextRenderer1_Impl for Direct3D12TextRenderer_Impl<'a> {
             }
 
             for metric in glyphmetrics[0..step_glyph_count].iter() {
-                let rect = Rect {
+                let rect = Rect::<f32> {
                     x: offset_x + metric.leftSideBearing as f32,
                     y: offset_y + metric.verticalOriginY as f32 + metric.topSideBearing as f32,
                     width: (metric.advanceWidth as i32
