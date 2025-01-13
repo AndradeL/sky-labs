@@ -18,5 +18,4 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub(super) mod window;
-pub(super) mod renderer_d2d;
 pub(super) mod renderer_d3d12;

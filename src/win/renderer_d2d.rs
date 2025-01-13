@@ -39,22 +39,6 @@ impl Renderer for Direct2DRenderer {
     fn size(&self) -> crate::math::Size<f32> {
         todo!()
     }
-    
-    fn draw_text(&self, text: &String, format: &TextFormat, coord: &Rect<f32>) {
-        todo!()
-    }
-    
-    fn draw_rectangle(&self, rect: &Rect<f32>, color: &Color) {
-        todo!()
-    }
-    
-    fn draw_circle(&self, bounds: &Rect<f32>, color: &Color) {
-        todo!()
-    }
-    
-    fn draw_circle_centered_at(&self, center: &Vector2<f32>, radius: f32, color: &Color) {
-        todo!()
-    }
 }
 
 /// Creates the D3D device to be used throughout application for resource loading
