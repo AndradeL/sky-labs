@@ -17,8 +17,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-mod text;
 mod drawing_session;
+mod text;
 
 use crate::{
     math::{Size, Vector2},
@@ -27,10 +27,14 @@ use crate::{
 };
 
 use drawing_session::Direct3D12DrawingSession;
-use windows::Win32::Graphics::{
-    Direct3D::*,
-    Direct3D12::*,
-    Dxgi::{Common::*, *},
+use windows::Win32::{
+    Foundation::WAIT_OBJECT_0,
+    Graphics::{
+        Direct3D::*,
+        Direct3D12::*,
+        Dxgi::{Common::*, *},
+    },
+    System::Threading::{CreateEventW, WaitForSingleObject},
 };
 
 /// Number of frames in the swap chain
@@ -38,13 +42,13 @@ const FRAME_COUNT: u32 = 2;
 
 /// Direct3D12 Renderer
 pub struct Direct3D12Renderer {
-    device: ID3D12Device,
-    command_queue: ID3D12CommandQueue,
-    swap_chain: IDXGISwapChain1,
-    rtv_descriptor_heap: ID3D12DescriptorHeap,
     rtv_descriptor_size: u32,
-    render_target_views: [ID3D12Resource; FRAME_COUNT as usize],
     command_allocator: ID3D12CommandAllocator,
+    render_target_views: [ID3D12Resource; FRAME_COUNT as usize],
+    rtv_descriptor_heap: ID3D12DescriptorHeap,
+    swap_chain: IDXGISwapChain1,
+    command_queue: ID3D12CommandQueue,
+    device: ID3D12Device,
 }
 
 impl<'a> Renderer<'a, Direct3D12DrawingSession<'a>> for Direct3D12Renderer {
@@ -73,7 +77,7 @@ impl<'a> Renderer<'a, Direct3D12DrawingSession<'a>> for Direct3D12Renderer {
         let command_allocator = create_command_allocator(&device).unwrap();
 
         // TODO: erase
-        let  bg_color = DXGI_RGBA {
+        let bg_color = DXGI_RGBA {
             r: 0.0,
             g: 1.0,
             b: 0.0,
@@ -83,7 +87,12 @@ impl<'a> Renderer<'a, Direct3D12DrawingSession<'a>> for Direct3D12Renderer {
         let parameter = DXGI_PRESENT_PARAMETERS {
             ..Default::default()
         };
-        unsafe { swap_chain.Present1(1, DXGI_PRESENT::default(), &parameter).ok().expect("unable to present swap chain"); };
+        unsafe {
+            swap_chain
+                .Present1(1, DXGI_PRESENT::default(), &parameter)
+                .ok()
+                .expect("unable to present swap chain");
+        };
 
         Self {
             device,
@@ -110,13 +119,37 @@ impl<'a> Renderer<'a, Direct3D12DrawingSession<'a>> for Direct3D12Renderer {
             }
         }
     }
-    
+
     fn begin_draw(&'a self) -> Direct3D12DrawingSession<'a> {
         Direct3D12DrawingSession(&self)
     }
-    
+
     fn end_draw(&'a self, _drawing_session: Direct3D12DrawingSession<'a>) {
         todo!()
+    }
+}
+
+impl Drop for Direct3D12Renderer {
+    fn drop(&mut self) {
+        // Wait for the GPU to finish executing the command list before releasing resources.
+        unsafe {
+            let fence: ID3D12Fence = self
+                .device
+                .CreateFence(0, D3D12_FENCE_FLAG_NONE)
+                .expect("Unable to create fence for finalization");
+            let fence_value = 1;
+            let event = CreateEventW(None, false, false, None)
+                .expect("Unable to create event for finalization");
+            self.command_queue
+                .Signal(&fence, fence_value)
+                .expect("Unable to signal fence for finalization");
+            fence
+                .SetEventOnCompletion(fence_value, event)
+                .expect("Unable to set event on completion");
+            if WaitForSingleObject(event, 1000) != WAIT_OBJECT_0 {
+                panic!("Timeout waiting for fence to signal");
+            }
+        }
     }
 }
 
@@ -179,7 +212,9 @@ fn create_swap_chain(
         ..Default::default()
     };
 
-    let factory: IDXGIFactory2 = unsafe { CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG).expect("Unable to create DXGI Factory") };
+    let factory: IDXGIFactory2 = unsafe {
+        CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG).expect("Unable to create DXGI Factory")
+    };
 
     let result = unsafe {
         factory.CreateSwapChainForHwnd(

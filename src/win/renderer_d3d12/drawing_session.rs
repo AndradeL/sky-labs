@@ -24,7 +24,7 @@ use crate::{
 
 use super::{text::Direct3D12TextRenderer, Direct3D12Renderer};
 
-pub(super) struct Direct3D12DrawingSession<'a>(pub &'a Direct3D12Renderer);
+pub struct Direct3D12DrawingSession<'a>(pub &'a Direct3D12Renderer);
 
 impl<'a> DrawingSession for Direct3D12DrawingSession<'a> {
     /// Draw a text to the game window

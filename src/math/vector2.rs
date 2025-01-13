@@ -133,9 +133,17 @@ impl<T:Number> IndexMut<usize> for Vector2<T> {
 }
 
 impl<T: Number> Vector2<T> {
+    pub fn new(x: T, y: T) -> Self {
+        Self { x, y }
+    }
+
     pub fn modulus(&self) -> f64 {
         let origin = Vector2::default();
         self.distance_to(&origin)
+    }
+
+    pub fn magnitude(&self) -> f64 {
+        self.modulus()
     }
 
     pub fn distance_to(&self, b: &Vector2<T>) -> f64 {
@@ -146,6 +154,23 @@ impl<T: Number> Vector2<T> {
 
     pub fn taxicab_distance(&self, b: Vector2<T>) -> T {
         T::abs(self.x - b.x) + T::abs(self.y - b.y)
+    }
+
+    pub fn dot(&self, b: Vector2<T>) -> T {
+        self.x * b.x + self.y * b.y
+    }
+
+    pub fn normalize(&self) -> Self {
+        let length = self.modulus();
+        if length == 0.0 {
+            return *self;
+        }
+        let x: f64 = self.x.as_double() / length;
+        let y: f64 = self.y.as_double() / length;
+        Self {
+            x: T::from_double(x),
+            y: T::from_double(y),
+        }
     }
 
     pub fn rotate(&self, rad: f64) -> Self {

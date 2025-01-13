@@ -30,13 +30,14 @@ use windows::{
         UI::WindowsAndMessaging::*,
     },
 };
+use windows_core::PCWSTR;
 
 use crate::{
     math::Size,
     window::{NativeWindow, WindowProcessResult},
 };
 
-// use crate::events::Event;
+const WINDOW_CLASS_NAME: PCWSTR = w!("snake_main_wnd");
 
 pub struct Win32Window {
     window_handle: HWND,
@@ -50,13 +51,12 @@ impl NativeWindow for Win32Window {
             CoInitializeEx(None, COINIT_MULTITHREADED).unwrap();
             let hinstance = GetModuleHandleW(None).unwrap();
             debug_assert!(!hinstance.is_invalid());
-            let class_name = w!("snake_main_wnd");
 
             let wndclass = WNDCLASSW {
                 style: CS_DBLCLKS,
                 hInstance: HINSTANCE::from(hinstance),
                 hCursor: LoadCursorW(None, IDC_ARROW).unwrap(),
-                lpszClassName: class_name,
+                lpszClassName: WINDOW_CLASS_NAME,
                 lpfnWndProc: Some(Self::static_window_procedure),
                 ..Default::default()
             };
@@ -66,7 +66,7 @@ impl NativeWindow for Win32Window {
 
             let hwnd = CreateWindowExW(
                 WINDOW_EX_STYLE::default(),
-                class_name,
+                WINDOW_CLASS_NAME,
                 w!("snake-rs"),
                 WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                 CW_USEDEFAULT,
@@ -119,6 +119,16 @@ impl NativeWindow for Win32Window {
             } else {
                 WindowProcessResult::Ok
             }
+        }
+    }
+}
+
+impl Drop for Win32Window {
+    fn drop(&mut self) {
+        // Destroys the window and wait for it to end itself.
+        unsafe {
+            let _ = DestroyWindow(self.window_handle);
+            self.process_until_end();
         }
     }
 }

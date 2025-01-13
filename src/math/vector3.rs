@@ -143,9 +143,17 @@ impl<T:Number> IndexMut<usize> for Vector3<T> {
 }
 
 impl<T: Number> Vector3<T> {
+    pub fn new(x: T, y: T, z: T) -> Self {
+        Self { x, y, z }
+    }
+
     pub fn modulus(&self) -> f64 {
         let origin = Vector3::default();
         self.distance_to(&origin)
+    }
+
+    pub fn magnitude(&self) -> f64 {
+        self.modulus()
     }
 
     pub fn distance_to(&self, b: &Vector3<T>) -> f64 {
@@ -169,6 +177,21 @@ impl<T: Number> Vector3<T> {
 
     pub fn dot(&self, b: &Vector3<T>) -> T {
         self.x * b.x + self.y * b.y + self.z * b.z
+    }
+
+    pub fn normalize(&self) -> Self {
+        let length = self.modulus();
+        if length == 0.0 {
+            return *self;
+        }
+        let x: f64 = self.x.as_double() / length;
+        let y: f64 = self.y.as_double() / length;
+        let z: f64 = self.z.as_double() / length;
+        Self {
+            x: T::from_double(x),
+            y: T::from_double(y),
+            z: T::from_double(z),
+        }
     }
 
     pub fn rotate_x(&self, rad: f64) -> Self {

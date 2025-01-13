@@ -17,53 +17,5 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use super::number::Number;
-use super::Vector2;
+mod vector2;
 
-#[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Default)]
-pub struct Size<T: Number> {
-    pub width: T,
-    pub height: T,
-}
-
-impl<T> Size<T> where T : Number {
-    pub fn new(width: T, height: T) -> Self {
-        Self {
-            width,
-            height,
-        }
-    }
-}
-
-impl<T> From<Vector2<T>> for Size<T> where T : Number {
-    fn from(point: Vector2<T>) -> Self {
-        Self {
-            width: point.x,
-            height: point.y,
-        }
-    }
-}
-
-#[cfg(target_os = "windows")]
-use windows::Win32::Graphics::Direct2D::Common::D2D_SIZE_F;
-
-
-#[cfg(target_os = "windows")]
-impl Into<D2D_SIZE_F> for Size<f32> {
-    fn into(self) -> D2D_SIZE_F {
-        D2D_SIZE_F {
-            width: self.width,
-            height: self.height,
-        }
-    }
-}
-
-#[cfg(target_os = "windows")]
-impl From<D2D_SIZE_F> for Size<f32> {
-    fn from(value: D2D_SIZE_F) -> Self {
-        Self {
-            width: value.width,
-            height: value.height,
-        }
-    }
-}
