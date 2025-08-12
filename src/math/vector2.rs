@@ -27,6 +27,7 @@ use std::ops::Mul;
 use std::ops::MulAssign;
 use std::ops::Neg;
 use std::ops::Sub;
+use std::ops::SubAssign;
 use std::slice;
 
 use super::number::Number;
@@ -77,6 +78,13 @@ impl<T: Number> Sub for Vector2<T> {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
         }
+    }
+}
+
+impl<T: Number> SubAssign for Vector2<T> {
+    fn sub_assign(&mut self, rhs: Self) {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
     }
 }
 

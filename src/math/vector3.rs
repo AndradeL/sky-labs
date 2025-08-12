@@ -28,6 +28,7 @@ use std::ops::Mul;
 use std::ops::MulAssign;
 use std::ops::Neg;
 use std::ops::Sub;
+use std::ops::SubAssign;
 
 use super::number::{Number, SignedNumber};
 
@@ -80,6 +81,14 @@ impl<T: Number> Sub for Vector3<T> {
             y: self.y - rhs.y,
             z: self.z - rhs.z,
         }
+    }
+}
+
+impl<T: Number> SubAssign for Vector3<T> {
+    fn sub_assign(&mut self, rhs: Self) {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
+        self.z -= rhs.z;
     }
 }
 
