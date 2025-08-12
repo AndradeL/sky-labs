@@ -154,6 +154,24 @@ impl<T: Number> Vector3<T> {
         Self { x, y, z }
     }
 
+    /// Returns a zero vector.
+    pub fn zero() -> Self {
+        Self {
+            x: T::zero(),
+            y: T::zero(),
+            z: T::zero(),
+        }
+    }
+
+    /// Returns a vector with all components set to one.
+    pub fn one() -> Self {
+        Self {
+            x: T::one(),
+            y: T::one(),
+            z: T::one(),
+        }
+    }
+
     /// Returns the modulus (length) of the vector.
     pub fn modulus(&self) -> f64 {
         let origin = Self::default();
@@ -165,13 +183,21 @@ impl<T: Number> Vector3<T> {
         self.modulus()
     }
 
+    /// Returns the squared norm of the vector.
+    /// This is useful for avoiding the square root operation when comparing distances.
+    pub fn norm_squared(&self) -> T {
+        let x = self.x;
+        let y = self.y;
+        let z = self.z;
+        x * x + y * y + z * z
+    }
+
     /// Returns the distance to another vector.
     /// This is the Euclidean distance between the two vectors.
     pub fn distance_to(&self, other: &Self) -> f64 {
-        let x: f64 = (self.x - other.x).as_double();
-        let y: f64 = (self.y - other.y).as_double();
-        let z: f64 = (self.z - other.z).as_double();
-        f64::sqrt(x * x + y * y + z * z)
+        let diff = *self - *other;
+        let norm_squared = diff.norm_squared().as_double();
+        f64::sqrt(norm_squared)
     }
 
     /// Returns the taxicab distance (Manhattan distance) to another vector.

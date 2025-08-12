@@ -146,6 +146,22 @@ impl<T: Number> Vector2<T> {
         Self { x, y }
     }
 
+    /// Returns a default `Vector2` with both components set to zero.
+    pub fn zero() -> Self {
+        Self {
+            x: T::zero(),
+            y: T::zero(),
+        }
+    }
+
+    /// Returns a `Vector2` with both components set to one.
+    pub fn one() -> Self {
+        Self {
+            x: T::one(),
+            y: T::one(),
+        }
+    }
+
     /// Returns the modulus (length) of the vector.
     pub fn modulus(&self) -> f64 {
         let origin = Vector2::default();
@@ -157,11 +173,19 @@ impl<T: Number> Vector2<T> {
         self.modulus()
     }
 
+    /// Returns the squared norm of the vector.
+    /// This is useful for avoiding the square root operation when comparing distances.
+    pub fn norm_squared(&self) -> T {
+        let x = self.x;
+        let y = self.y;
+        x * x + y * y
+    }
+
     /// Returns the distance to another vector.
     pub fn distance_to(&self, other: &Vector2<T>) -> f64 {
-        let x: f64 = (self.x - other.x).as_double();
-        let y: f64 = (self.y - other.y).as_double();
-        f64::sqrt(x * x + y * y)
+        let diff = *self - *other;
+        let norm_squared: f64 = diff.norm_squared().as_double();
+        f64::sqrt(norm_squared)
     }
 
     /// Returns the taxicab distance (Manhattan distance) to another vector.
