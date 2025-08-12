@@ -256,3 +256,28 @@ impl<T: Number> Vector3<T> {
         &mut self.x as *mut T
     }
 }
+
+#[cfg(target_os = "windows")]
+use windows::Win32::Graphics::Direct2D::Common::D2D_VECTOR_3F;
+
+#[cfg(target_os = "windows")]
+impl Into<D2D_VECTOR_3F> for Vector3<f32> {
+    fn into(self) -> D2D_VECTOR_3F {
+        D2D_VECTOR_3F {
+            x: self.x,
+            y: self.y,
+            z: self.z,
+        }
+    }
+}
+
+#[cfg(target_os = "windows")]
+impl From<D2D_VECTOR_3F> for Vector3<f32> {
+    fn from(value: D2D_VECTOR_3F) -> Self {
+        Self {
+            x: value.x,
+            y: value.y,
+            z: value.z,
+        }
+    }
+}

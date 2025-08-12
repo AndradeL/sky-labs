@@ -210,7 +210,9 @@ impl<T: Number> Vector2<T> {
 }
 
 #[cfg(target_os = "windows")]
-use windows::Win32::Graphics::Direct2D::Common::D2D_SIZE_F;
+use windows::Win32::Graphics::Direct2D::Common::{
+    D2D_POINT_2F, D2D_POINT_2U, D2D_SIZE_F, D2D_SIZE_U, D2D_VECTOR_2F,
+};
 
 #[cfg(target_os = "windows")]
 impl Into<D2D_SIZE_F> for Vector2<f32> {
@@ -232,3 +234,82 @@ impl From<D2D_SIZE_F> for Vector2<f32> {
     }
 }
 
+#[cfg(target_os = "windows")]
+impl Into<D2D_SIZE_U> for Vector2<u32> {
+    fn into(self) -> D2D_SIZE_U {
+        D2D_SIZE_U {
+            width: self.x,
+            height: self.y,
+        }
+    }
+}
+
+#[cfg(target_os = "windows")]
+impl From<D2D_SIZE_U> for Vector2<u32> {
+    fn from(value: D2D_SIZE_U) -> Self {
+        Self {
+            x: value.width,
+            y: value.height,
+        }
+    }
+}
+
+#[cfg(target_os = "windows")]
+impl Into<D2D_POINT_2F> for Vector2<f32> {
+    fn into(self) -> D2D_POINT_2F {
+        D2D_POINT_2F {
+            x: self.x,
+            y: self.y,
+        }
+    }
+}
+
+#[cfg(target_os = "windows")]
+impl From<D2D_POINT_2F> for Vector2<f32> {
+    fn from(value: D2D_POINT_2F) -> Self {
+        Self {
+            x: value.x,
+            y: value.y,
+        }
+    }
+}
+
+#[cfg(target_os = "windows")]
+impl Into<D2D_POINT_2U> for Vector2<u32> {
+    fn into(self) -> D2D_POINT_2U {
+        D2D_POINT_2U {
+            x: self.x,
+            y: self.y,
+        }
+    }
+}
+
+#[cfg(target_os = "windows")]
+impl From<D2D_POINT_2U> for Vector2<u32> {
+    fn from(value: D2D_POINT_2U) -> Self {
+        Self {
+            x: value.x,
+            y: value.y,
+        }
+    }
+}
+
+#[cfg(target_os = "windows")]
+impl Into<D2D_VECTOR_2F> for Vector2<f32> {
+    fn into(self) -> D2D_VECTOR_2F {
+        D2D_VECTOR_2F {
+            x: self.x,
+            y: self.y,
+        }
+    }
+}
+
+#[cfg(target_os = "windows")]
+impl From<D2D_VECTOR_2F> for Vector2<f32> {
+    fn from(value: D2D_VECTOR_2F) -> Self {
+        Self {
+            x: value.x,
+            y: value.y,
+        }
+    }
+}
