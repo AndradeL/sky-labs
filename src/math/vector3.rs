@@ -29,7 +29,7 @@ use std::ops::MulAssign;
 use std::ops::Neg;
 use std::ops::Sub;
 
-use super::number::Number;
+use super::number::{Number, SignedNumber};
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Default)]
 #[repr(C)]
@@ -39,10 +39,7 @@ pub struct Vector3<T: Number> {
     pub z: T,
 }
 
-impl<T> Neg for Vector3<T>
-where
-    T: Number + Neg<Output = T>,
-{
+impl<T: SignedNumber> Neg for Vector3<T> {
     type Output = Self;
 
     fn neg(self) -> Self::Output {

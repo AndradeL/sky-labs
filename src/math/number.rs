@@ -17,8 +17,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use super::{Abs, AsDouble, FromDouble};
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+mod abs;
+mod as_double;
+mod wrap;
+
+pub(crate) use self::abs::Abs;
+pub(crate) use self::as_double::AsDouble;
+pub(crate) use self::as_double::FromDouble;
+pub use self::wrap::Wrap;
+
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 // TODO: change to trait alias once issue is merged
 // https://github.com/rust-lang/rust/issues/41517
@@ -40,11 +48,72 @@ pub trait Number:
     + Abs
     + FromDouble
 {
+    fn zero() -> Self;
+    fn one() -> Self;
 }
 
-impl Number for f64 {}
-impl Number for f32 {}
-impl Number for u64 {}
-impl Number for i64 {}
-impl Number for u32 {}
-impl Number for i32 {}
+impl Number for f64 {
+    fn zero() -> Self {
+        0.0
+    }
+
+    fn one() -> Self {
+        1.0
+    }
+}
+
+impl Number for f32 {
+    fn zero() -> Self {
+        0.0
+    }
+
+    fn one() -> Self {
+        1.0
+    }
+}
+
+impl Number for u64 {
+    fn zero() -> Self {
+        0
+    }
+
+    fn one() -> Self {
+        1
+    }
+}
+
+impl Number for i64 {
+    fn zero() -> Self {
+        0
+    }
+
+    fn one() -> Self {
+        1
+    }
+}
+
+impl Number for u32 {
+    fn zero() -> Self {
+        0
+    }
+
+    fn one() -> Self {
+        1
+    }
+}
+
+impl Number for i32 {
+    fn zero() -> Self {
+        0
+    }
+
+    fn one() -> Self {
+        1
+    }
+}
+
+pub trait SignedNumber: Number + Neg<Output = Self> + Abs {}
+impl SignedNumber for f64 {}
+impl SignedNumber for f32 {}
+impl SignedNumber for i64 {}
+impl SignedNumber for i32 {}

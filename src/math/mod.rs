@@ -22,20 +22,14 @@ mod vector3;
 mod matrix3x3;
 mod matrix4x4;
 mod number;
-mod abs;
-mod interval;
-mod as_double;
-mod size;
 mod rect;
 
-pub(self) use self::abs::Abs;
-pub(self) use self::number::Number;
-pub(self) use self::as_double::AsDouble;
-pub(self) use self::as_double::FromDouble;
 pub use self::vector2::Vector2;
 pub use self::vector3::Vector3;
 pub use self::matrix3x3::Matrix3x3;
 pub use self::size::Size;
+pub use self::number::Wrap;
+pub(crate) use self::number::{Number, SignedNumber};
 pub use self::rect::Rect;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]

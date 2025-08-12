@@ -17,13 +17,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use super::number::Number;
+use super::Number;
 
-pub trait CircularInterval
+pub trait Wrap
 where
     Self: Number,
 {
-    fn circulate_around(self, min_limit: Self, max_limit: Self) -> Self {
+    fn wrap_around(self, min_limit: Self, max_limit: Self) -> Self {
         if self < min_limit {
             max_limit - self.abs()
         } else if self > max_limit {
@@ -34,9 +34,9 @@ where
     }
 }
 
-impl CircularInterval for f64 {}
-impl CircularInterval for f32 {}
-impl CircularInterval for i64 {}
-impl CircularInterval for i32 {}
-impl CircularInterval for u64 {}
-impl CircularInterval for u32 {}
+impl Wrap for f64 {}
+impl Wrap for f32 {}
+impl Wrap for i64 {}
+impl Wrap for i32 {}
+impl Wrap for u64 {}
+impl Wrap for u32 {}
