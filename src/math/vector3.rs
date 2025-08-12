@@ -149,42 +149,52 @@ impl<T: Number> IndexMut<usize> for Vector3<T> {
 }
 
 impl<T: Number> Vector3<T> {
+    /// Creates a new `Vector3` with the given x, y, and z components.
     pub fn new(x: T, y: T, z: T) -> Self {
         Self { x, y, z }
     }
 
+    /// Returns the modulus (length) of the vector.
     pub fn modulus(&self) -> f64 {
-        let origin = Vector3::default();
+        let origin = Self::default();
         self.distance_to(&origin)
     }
 
+    /// Returns the magnitude (norm) of the vector, same as modulus().
     pub fn magnitude(&self) -> f64 {
         self.modulus()
     }
 
-    pub fn distance_to(&self, b: &Vector3<T>) -> f64 {
-        let x: f64 = (self.x - b.x).as_double();
-        let y: f64 = (self.y - b.y).as_double();
-        let z: f64 = (self.z - b.z).as_double();
+    /// Returns the distance to another vector.
+    /// This is the Euclidean distance between the two vectors.
+    pub fn distance_to(&self, other: &Self) -> f64 {
+        let x: f64 = (self.x - other.x).as_double();
+        let y: f64 = (self.y - other.y).as_double();
+        let z: f64 = (self.z - other.z).as_double();
         f64::sqrt(x * x + y * y + z * z)
     }
 
-    pub fn taxicab_distance(&self, b: &Vector3<T>) -> T {
-        T::abs(self.x - b.x) + T::abs(self.y - b.y) + T::abs(self.z - b.z)
+    /// Returns the taxicab distance (Manhattan distance) to another vector.
+    pub fn taxicab_distance(&self, other: &Self) -> T {
+        T::abs(self.x - other.x) + T::abs(self.y - other.y) + T::abs(self.z - other.z)
     }
 
-    pub fn cross(&self, b: &Vector3<T>) -> Self {
+    /// Returns the cross product of this vector with another vector.
+    pub fn cross(&self, other: &Self) -> Self {
         Self {
-            x: self.y * b.z - self.z * b.y,
-            y: self.z * b.x - self.x * b.z,
-            z: self.x * b.y - self.y * b.x,
+            x: self.y * other.z - self.z * other.y,
+            y: self.z * other.x - self.x * other.z,
+            z: self.x * other.y - self.y * other.x,
         }
     }
 
-    pub fn dot(&self, b: &Vector3<T>) -> T {
-        self.x * b.x + self.y * b.y + self.z * b.z
+    /// Returns the dot product of this vector with another vector.
+    pub fn dot(&self, other: &Self) -> T {
+        self.x * other.x + self.y * other.y + self.z * other.z
     }
 
+    /// Returns a normalized version of this vector.
+    /// If the vector is zero, it returns the vector itself.
     pub fn normalize(&self) -> Self {
         let length = self.modulus();
         if length == 0.0 {
@@ -200,6 +210,7 @@ impl<T: Number> Vector3<T> {
         }
     }
 
+    /// Rotates the vector around the X axis by the given angle in radians.
     pub fn rotate_x(&self, rad: f64) -> Self {
         let cos = rad.cos();
         let sin = rad.sin();
@@ -207,11 +218,12 @@ impl<T: Number> Vector3<T> {
         let z: f64 = self.z.as_double();
         Self {
             x: self.x,
-            y: T::from_double(y * cos + z * sin), 
+            y: T::from_double(y * cos + z * sin),
             z: T::from_double(y * sin + z * cos),
         }
     }
 
+    /// Rotates the vector around the Y axis by the given angle in radians.
     pub fn rotate_y(&self, rad: f64) -> Self {
         let cos = rad.cos();
         let sin = rad.sin();
@@ -219,11 +231,12 @@ impl<T: Number> Vector3<T> {
         let z: f64 = self.z.as_double();
         Self {
             x: T::from_double(x * cos + z * sin),
-            y: self.y, 
+            y: self.y,
             z: T::from_double(x * sin + z * cos),
         }
     }
 
+    /// Rotates the vector around the Z axis by the given angle in radians.
     pub fn rotate_z(&self, rad: f64) -> Self {
         let cos = rad.cos();
         let sin = rad.sin();
@@ -236,26 +249,35 @@ impl<T: Number> Vector3<T> {
         }
     }
 
-    pub fn rotate(&self, rad: f64, axis: Vector3<T>) -> Self {
+    /// Rotates the vector around a given axis by the specified angle in radians.
+    pub fn rotate(&self, rad: f64, axis: &Self) -> Self {
         todo!()
     }
 
+    /// Returns a slice representation of the vector.
     pub fn as_slice(&self) -> &[T] {
         unsafe { slice::from_raw_parts(self.as_ptr(), 3) }
     }
 
+    /// Returns a mutable slice representation of the vector.
     pub fn as_mut_slice(&mut self) -> &mut [T] {
         unsafe { slice::from_raw_parts_mut(self.as_mut_ptr(), 3) }
     }
 
-    unsafe fn as_ptr(&self) -> *const T {
+    /// Returns a pointer to the vector's data.
+    /// This is unsafe because it allows direct access to the vector's memory without bounds check.
+    pub unsafe fn as_ptr(&self) -> *const T {
         &self.x as *const T
     }
 
-    unsafe fn as_mut_ptr(&mut self) -> *mut T {
+    /// Returns a mutable pointer to the vector's data.
+    /// This is unsafe because it allows direct access to the vector's memory without bounds check.
+    pub unsafe fn as_mut_ptr(&mut self) -> *mut T {
         &mut self.x as *mut T
     }
 }
+
+// Windows-specific implementation for Direct2D compatibility.
 
 #[cfg(target_os = "windows")]
 use windows::Win32::Graphics::Direct2D::Common::D2D_VECTOR_3F;

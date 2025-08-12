@@ -141,33 +141,41 @@ impl<T: Number> IndexMut<usize> for Vector2<T> {
 }
 
 impl<T: Number> Vector2<T> {
+    /// Creates a new `Vector2` with the given x and y components.
     pub fn new(x: T, y: T) -> Self {
         Self { x, y }
     }
 
+    /// Returns the modulus (length) of the vector.
     pub fn modulus(&self) -> f64 {
         let origin = Vector2::default();
         self.distance_to(&origin)
     }
 
+    /// Returns the magnitude (norm) of the vector, the same as modulus().
     pub fn magnitude(&self) -> f64 {
         self.modulus()
     }
 
-    pub fn distance_to(&self, b: &Vector2<T>) -> f64 {
-        let x: f64 = (self.x - b.x).as_double();
-        let y: f64 = (self.y - b.y).as_double();
+    /// Returns the distance to another vector.
+    pub fn distance_to(&self, other: &Vector2<T>) -> f64 {
+        let x: f64 = (self.x - other.x).as_double();
+        let y: f64 = (self.y - other.y).as_double();
         f64::sqrt(x * x + y * y)
     }
 
-    pub fn taxicab_distance(&self, b: Vector2<T>) -> T {
-        T::abs(self.x - b.x) + T::abs(self.y - b.y)
+    /// Returns the taxicab distance (Manhattan distance) to another vector.
+    pub fn taxicab_distance(&self, other: Vector2<T>) -> T {
+        T::abs(self.x - other.x) + T::abs(self.y - other.y)
     }
 
-    pub fn dot(&self, b: Vector2<T>) -> T {
-        self.x * b.x + self.y * b.y
+    /// Returns the dot product of this vector with another vector.
+    pub fn dot(&self, other: Vector2<T>) -> T {
+        self.x * other.x + self.y * other.y
     }
 
+    /// Returns a normalized version of the vector.
+    /// If the vector is zero, it returns the original vector.
     pub fn normalize(&self) -> Self {
         let length = self.modulus();
         if length == 0.0 {
@@ -181,6 +189,8 @@ impl<T: Number> Vector2<T> {
         }
     }
 
+    /// Rotates the vector around the origin by the given angle in radians.
+    /// The rotation is counter-clockwise.
     pub fn rotate(&self, rad: f64) -> Self {
         let cos = rad.cos();
         let sin = rad.sin();
@@ -192,22 +202,30 @@ impl<T: Number> Vector2<T> {
         }
     }
 
-    pub fn as_slice(&self) -> &[T] {
+    /// Returns a slice representation of the vector.
+    pub fn as_slice(&self) -> &[T; 2] {
         unsafe { slice::from_raw_parts(self.as_ptr(), 2) }
     }
 
-    pub fn as_mut_slice(&mut self) -> &mut [T] {
+    /// Returns a mutable slice representation of the vector.
+    pub fn as_mut_slice(&mut self) -> &mut [T; 2] {
         unsafe { slice::from_raw_parts_mut(self.as_mut_ptr(), 2) }
     }
 
-    unsafe fn as_ptr(&self) -> *const T {
+    /// Returns a pointer to the vector's data.
+    /// This is unsafe because it allows direct access to the vector's memory without bounds check.
+    pub unsafe fn as_ptr(&self) -> *const T {
         &self.x as *const T
     }
 
-    unsafe fn as_mut_ptr(&mut self) -> *mut T {
+    /// Returns a mutable pointer to the vector's data.
+    /// This is unsafe because it allows direct access to the vector's memory without bounds check.
+    pub unsafe fn as_mut_ptr(&mut self) -> *mut T {
         &mut self.x as *mut T
     }
 }
+
+/// Windows-specific implementation for Direct2D compatibility.
 
 #[cfg(target_os = "windows")]
 use windows::Win32::Graphics::Direct2D::Common::{
