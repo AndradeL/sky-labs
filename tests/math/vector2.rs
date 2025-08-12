@@ -283,3 +283,259 @@ fn test_vector2_dot_product_f64() {
     let result = v1.dot(v2);
     assert_eq!(result, 11.0f64);
 }
+#[test]
+fn test_vector2_as_slice_f32() {
+    let v = Vector2::new(1.0f32, 3.0f32);
+    let slice = v.as_slice();
+    assert_eq!(slice.len(), 2);
+    assert_eq!(slice, &[1.0f32, 3.0f32]);
+    assert_eq!(std::mem::size_of_val(slice), 8); // 2 * size of f32
+}
+
+#[test]
+fn test_vector2_as_slice_f64() {
+    let v = Vector2::new(1.0f64, 3.0f64);
+    let slice = v.as_slice();
+    assert_eq!(slice.len(), 2);
+    assert_eq!(slice, &[1.0f64, 3.0f64]);
+    assert_eq!(std::mem::size_of_val(slice), 16); // 2 * size of f64
+}
+
+#[test]
+fn test_vector2_as_slice_i32() {
+    let v = Vector2::new(1i32, 3i32);
+    let slice = v.as_slice();
+    assert_eq!(slice.len(), 2);
+    assert_eq!(slice, &[1i32, 3i32]);
+    assert_eq!(std::mem::size_of_val(slice), 8); // 2 * size of i32
+}
+
+#[test]
+fn test_vector2_as_slice_i64() {
+    let v = Vector2::new(1i64, 3i64);
+    let slice = v.as_slice();
+    assert_eq!(slice.len(), 2);
+    assert_eq!(slice, &[1i64, 3i64]);
+    assert_eq!(std::mem::size_of_val(slice), 16); // 2 * size of i64
+}
+
+#[test]
+fn test_vector2_as_slice_u32() {
+    let v = Vector2::new(1u32, 3u32);
+    let slice = v.as_slice();
+    assert_eq!(slice.len(), 2);
+    assert_eq!(slice, &[1u32, 3u32]);
+    assert_eq!(std::mem::size_of_val(slice), 8); // 2 * size of u32
+}
+
+#[test]
+fn test_vector2_as_slice_u64() {
+    let v = Vector2::new(1u64, 3u64);
+    let slice = v.as_slice();
+    assert_eq!(slice.len(), 2);
+    assert_eq!(slice, &[1u64, 3u64]);
+}
+
+#[test]
+fn test_vector2_as_ptr_f32() {
+    let v = Vector2::new(1.0f32, 2.0f32);
+    unsafe {
+        let ptr = v.as_ptr();
+        assert_eq!(*ptr, 1.0f32);
+        assert_eq!(*ptr.add(1), 2.0f32);
+    }
+}
+
+#[test]
+fn test_vector2_as_ptr_f64() {
+    let v = Vector2::new(1.0f64, 2.0f64);
+    unsafe {
+        let ptr = v.as_ptr();
+        assert_eq!(*ptr, 1.0f64);
+        assert_eq!(*ptr.add(1), 2.0f64);
+    }
+}
+
+#[test]
+fn test_vector2_as_ptr_i32() {
+    let v = Vector2::new(1i32, 2i32);
+    unsafe {
+        let ptr = v.as_ptr();
+        assert_eq!(*ptr, 1i32);
+        assert_eq!(*ptr.add(1), 2i32);
+    }
+}
+
+#[test]
+fn test_vector2_as_ptr_i64() {
+    let v = Vector2::new(1i64, 2i64);
+    unsafe {
+        let ptr = v.as_ptr();
+        assert_eq!(*ptr, 1i64);
+        assert_eq!(*ptr.add(1), 2i64);
+    }
+}
+
+#[test]
+fn test_vector2_as_ptr_u32() {
+    let v = Vector2::new(1u32, 2u32);
+    unsafe {
+        let ptr = v.as_ptr();
+        assert_eq!(*ptr, 1u32);
+        assert_eq!(*ptr.add(1), 2u32);
+    }
+}
+
+#[test]
+fn test_vector2_as_ptr_u64() {
+    let v = Vector2::new(1u64, 2u64);
+    unsafe {
+        let ptr = v.as_ptr();
+        assert_eq!(*ptr, 1u64);
+        assert_eq!(*ptr.add(1), 2u64);
+    }
+}
+
+#[test]
+fn test_vector2_as_mut_slice_f32() {
+    let mut v = Vector2::new(1.0f32, 3.0f32);
+    let slice = v.as_mut_slice();
+    assert_eq!(slice.len(), 2);
+    assert_eq!(slice, &[1.0f32, 3.0f32]);
+    slice[0] = 5.0f32;
+    slice[1] = 7.0f32;
+    assert_eq!(v, Vector2::new(5.0f32, 7.0f32));
+}
+
+#[test]
+fn test_vector2_as_mut_slice_f64() {
+    let mut v = Vector2::new(1.0f64, 3.0f64);
+    let slice = v.as_mut_slice();
+    assert_eq!(slice.len(), 2);
+    assert_eq!(slice, &[1.0f64, 3.0f64]);
+    slice[0] = 5.0f64;
+    slice[1] = 7.0f64;
+    assert_eq!(v, Vector2::new(5.0f64, 7.0f64));
+}
+
+#[test]
+fn test_vector2_as_mut_slice_i32() {
+    let mut v = Vector2::new(1i32, 3i32);
+    let slice = v.as_mut_slice();
+    assert_eq!(slice.len(), 2);
+    assert_eq!(slice, &[1i32, 3i32]);
+    slice[0] = 5i32;
+    slice[1] = 7i32;
+    assert_eq!(v, Vector2::new(5i32, 7i32));
+}
+
+#[test]
+fn test_vector2_as_mut_slice_i64() {
+    let mut v = Vector2::new(1i64, 3i64);
+    let slice = v.as_mut_slice();
+    assert_eq!(slice.len(), 2);
+    assert_eq!(slice, &[1i64, 3i64]);
+    slice[0] = 5i64;
+    slice[1] = 7i64;
+    assert_eq!(v, Vector2::new(5i64, 7i64));
+}
+
+#[test]
+fn test_vector2_as_mut_slice_u32() {
+    let mut v = Vector2::new(1u32, 3u32);
+    let slice = v.as_mut_slice();
+    assert_eq!(slice.len(), 2);
+    assert_eq!(slice, &[1u32, 3u32]);
+    slice[0] = 5u32;
+    slice[1] = 7u32;
+    assert_eq!(v, Vector2::new(5u32, 7u32));
+}
+
+#[test]
+fn test_vector2_as_mut_slice_u64() {
+    let mut v = Vector2::new(1u64, 3u64);
+    let slice = v.as_mut_slice();
+    assert_eq!(slice.len(), 2);
+    assert_eq!(slice, &[1u64, 3u64]);
+    slice[0] = 5u64;
+    slice[1] = 7u64;
+    assert_eq!(v, Vector2::new(5u64, 7u64));
+}
+
+#[test]
+fn test_vector2_as_mut_ptr_f32() {
+    let mut v = Vector2::new(1.0f32, 2.0f32);
+    unsafe {
+        let ptr = v.as_mut_ptr();
+        assert_eq!(*ptr, 1.0f32);
+        assert_eq!(*ptr.add(1), 2.0f32);
+        *ptr = 5.0f32;
+        *ptr.add(1) = 7.0f32;
+    }
+    assert_eq!(v, Vector2::new(5.0f32, 7.0f32));
+}
+
+#[test]
+fn test_vector2_as_mut_ptr_f64() {
+    let mut v = Vector2::new(1.0f64, 2.0f64);
+    unsafe {
+        let ptr = v.as_mut_ptr();
+        assert_eq!(*ptr, 1.0f64);
+        assert_eq!(*ptr.add(1), 2.0f64);
+        *ptr = 5.0f64;
+        *ptr.add(1) = 7.0f64;
+    }
+    assert_eq!(v, Vector2::new(5.0f64, 7.0f64));
+}
+
+#[test]
+fn test_vector2_as_mut_ptr_i32() {
+    let mut v = Vector2::new(1i32, 2i32);
+    unsafe {
+        let ptr = v.as_mut_ptr();
+        assert_eq!(*ptr, 1i32);
+        assert_eq!(*ptr.add(1), 2i32);
+        *ptr = 5i32;
+        *ptr.add(1) = 7i32;
+    }
+    assert_eq!(v, Vector2::new(5i32, 7i32));
+}
+
+#[test]
+fn test_vector2_as_mut_ptr_i64() {
+    let mut v = Vector2::new(1i64, 2i64);
+    unsafe {
+        let ptr = v.as_mut_ptr();
+        assert_eq!(*ptr, 1i64);
+        assert_eq!(*ptr.add(1), 2i64);
+        *ptr = 5i64;
+        *ptr.add(1) = 7i64;
+    }
+    assert_eq!(v, Vector2::new(5i64, 7i64));
+}
+
+#[test]
+fn test_vector2_as_mut_ptr_u32() {
+    let mut v = Vector2::new(1u32, 2u32);
+    unsafe {
+        let ptr = v.as_mut_ptr();
+        assert_eq!(*ptr, 1u32);
+        assert_eq!(*ptr.add(1), 2u32);
+        *ptr = 5u32;
+        *ptr.add(1) = 7u32;
+    }
+    assert_eq!(v, Vector2::new(5u32, 7u32));
+}
+
+#[test]
+fn test_vector2_as_mut_ptr_u64() {
+    let mut v = Vector2::new(1u64, 2u64);
+    unsafe {
+        let ptr = v.as_mut_ptr();
+        assert_eq!(*ptr, 1u64);
+        assert_eq!(*ptr.add(1), 2u64);
+        *ptr = 5u64;
+        *ptr.add(1) = 7u64;
+    }
+    assert_eq!(v, Vector2::new(5u64, 7u64));
+}

@@ -17,7 +17,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use core::slice;
 use std::ops::Add;
 use std::ops::AddAssign;
 use std::ops::Div;
@@ -281,13 +280,13 @@ impl<T: Number> Vector3<T> {
     }
 
     /// Returns a slice representation of the vector.
-    pub fn as_slice(&self) -> &[T] {
-        unsafe { slice::from_raw_parts(self.as_ptr(), 3) }
+    pub fn as_slice(&self) -> &[T; 3] {
+        unsafe { std::mem::transmute(self) }
     }
 
     /// Returns a mutable slice representation of the vector.
-    pub fn as_mut_slice(&mut self) -> &mut [T] {
-        unsafe { slice::from_raw_parts_mut(self.as_mut_ptr(), 3) }
+    pub fn as_mut_slice(&mut self) -> &mut [T; 3] {
+        unsafe { std::mem::transmute(self) }
     }
 
     /// Returns a pointer to the vector's data.

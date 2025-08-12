@@ -28,7 +28,6 @@ use std::ops::MulAssign;
 use std::ops::Neg;
 use std::ops::Sub;
 use std::ops::SubAssign;
-use std::slice;
 
 use super::number::Number;
 
@@ -228,12 +227,12 @@ impl<T: Number> Vector2<T> {
 
     /// Returns a slice representation of the vector.
     pub fn as_slice(&self) -> &[T; 2] {
-        unsafe { slice::from_raw_parts(self.as_ptr(), 2) }
+        unsafe { std::mem::transmute(self) }
     }
 
     /// Returns a mutable slice representation of the vector.
     pub fn as_mut_slice(&mut self) -> &mut [T; 2] {
-        unsafe { slice::from_raw_parts_mut(self.as_mut_ptr(), 2) }
+        unsafe { std::mem::transmute(self) }
     }
 
     /// Returns a pointer to the vector's data.
