@@ -141,7 +141,7 @@ impl<T: Number> Index<usize> for Vector3<T> {
     }
 }
 
-impl<T:Number> IndexMut<usize> for Vector3<T> {
+impl<T: Number> IndexMut<usize> for Vector3<T> {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         debug_assert!(index < 3);
         self.as_mut_slice().index_mut(index)

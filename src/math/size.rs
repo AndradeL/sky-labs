@@ -26,16 +26,13 @@ pub struct Size<T: Number> {
     pub height: T,
 }
 
-impl<T> Size<T> where T : Number {
+impl<T: Number> Size<T> {
     pub fn new(width: T, height: T) -> Self {
-        Self {
-            width,
-            height,
-        }
+        Self { width, height }
     }
 }
 
-impl<T> From<Vector2<T>> for Size<T> where T : Number {
+impl<T: Number> From<Vector2<T>> for Size<T> {
     fn from(point: Vector2<T>) -> Self {
         Self {
             width: point.x,
@@ -46,7 +43,6 @@ impl<T> From<Vector2<T>> for Size<T> where T : Number {
 
 #[cfg(target_os = "windows")]
 use windows::Win32::Graphics::Direct2D::Common::D2D_SIZE_F;
-
 
 #[cfg(target_os = "windows")]
 impl Into<D2D_SIZE_F> for Size<f32> {

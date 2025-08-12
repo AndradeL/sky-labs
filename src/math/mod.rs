@@ -17,20 +17,21 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-mod vector2;
-mod vector3;
 mod matrix3x3;
 mod matrix4x4;
 mod number;
 mod rect;
+mod size;
+mod vector2;
+mod vector3;
 
-pub use self::vector2::Vector2;
-pub use self::vector3::Vector3;
 pub use self::matrix3x3::Matrix3x3;
-pub use self::size::Size;
 pub use self::number::Wrap;
 pub(crate) use self::number::{Number, SignedNumber};
 pub use self::rect::Rect;
+pub use self::size::Size;
+pub use self::vector2::Vector2;
+pub use self::vector3::Vector3;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Direction {
