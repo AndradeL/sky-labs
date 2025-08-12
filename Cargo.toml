@@ -5,11 +5,11 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
+[target.'cfg(windows)'.dependencies]
 windows-implement = "0.59.0"
 windows-core = "0.59.0"
 
-[dependencies.windows]
+[target.'cfg(windows)'.dependencies.windows]
 version = "0.59"
 features = [
     "Foundation_Numerics",
