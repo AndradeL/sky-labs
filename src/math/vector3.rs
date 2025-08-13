@@ -276,7 +276,14 @@ impl<T: Number> Vector3<T> {
 
     /// Rotates the vector around a given axis by the specified angle in radians.
     pub fn rotate(&self, rad: f64, axis: &Self) -> Self {
-        todo!()
+        let parallel_part = *axis * self.dot(axis);
+        let orthogonal_part = axis.cross(self);
+        let rejection = *self - parallel_part;
+
+        let cos = rad.cos();
+        let sin = rad.sin();
+
+        parallel_part + rejection * T::from_double(cos) + orthogonal_part * T::from_double(sin)
     }
 
     /// Returns a slice representation of the vector.

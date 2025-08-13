@@ -159,10 +159,11 @@ fn test_vector3_rotate_axis_zero() {
     let v = Vector3::<f64>::new(1.0, 2.0, 3.0);
     let axis = Vector3::new(0.0, 1.0, 0.0);
     let rotated = v.rotate(0.0, &axis);
-    assert!((rotated.x - (-1.0)).abs() < 1e-6);
+    assert!((rotated.x - 1.0).abs() < 1e-6);
     assert!((rotated.y - 2.0).abs() < 1e-6);
-    assert!((rotated.z - (-3.0)).abs() < 1e-6);
+    assert!((rotated.z - 3.0).abs() < 1e-6);
 }
+
 #[test]
 fn test_vector3_as_slice_f32() {
     let v = Vector3::new(1.0f32, 2.0f32, 3.0f32);
