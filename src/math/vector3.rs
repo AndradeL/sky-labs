@@ -271,23 +271,6 @@ impl<T: Number> Vector3<T> {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
 
-    /// Returns a normalized version of this vector.
-    /// If the vector is zero, it returns the vector itself.
-    pub fn normalize(&self) -> Self {
-        let length = self.modulus();
-        if length == 0.0 {
-            return *self;
-        }
-        let x: f64 = self.x.as_double() / length;
-        let y: f64 = self.y.as_double() / length;
-        let z: f64 = self.z.as_double() / length;
-        Self {
-            x: T::from_double(x),
-            y: T::from_double(y),
-            z: T::from_double(z),
-        }
-    }
-
     /// Rotates the vector around the X axis by the given angle in radians.
     pub fn rotate_x(&self, rad: f64) -> Self {
         let cos = rad.cos();
@@ -359,6 +342,44 @@ impl<T: Number> Vector3<T> {
     /// This is unsafe because it allows direct access to the vector's memory without bounds check.
     pub unsafe fn as_mut_ptr(&mut self) -> *mut T {
         &mut self.x as *mut T
+    }
+}
+
+impl Vector3<f32> {
+    /// Returns a normalized version of this vector.
+    /// If the vector is zero, it returns the vector itself.
+    pub fn normalize(&self) -> Self {
+        let length = self.modulus();
+        if length == 0.0 {
+            return *self;
+        }
+
+        *self / length as f32
+    }
+
+    /// Checks if the vector is normalized (length is 1).
+    pub fn is_normalized(&self) -> bool {
+        let length_squared = self.norm_squared();
+        (length_squared - 1.0).abs() < f32::EPSILON
+    }
+}
+
+impl Vector3<f64> {
+    /// Returns a normalized version of this vector.
+    /// If the vector is zero, it returns the vector itself.
+    pub fn normalize(&self) -> Self {
+        let length = self.modulus();
+        if length == 0.0 {
+            return *self;
+        }
+
+        *self / length
+    }
+
+    /// Checks if the vector is normalized (length is 1).
+    pub fn is_normalized(&self) -> bool {
+        let length_squared = self.norm_squared();
+        (length_squared - 1.0).abs() < f64::EPSILON
     }
 }
 
