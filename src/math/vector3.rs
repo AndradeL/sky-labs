@@ -103,6 +103,59 @@ impl<T: Number> Mul<T> for Vector3<T> {
     }
 }
 
+impl Mul<Vector3<u32>> for u32 {
+    type Output = Vector3<u32>;
+
+    fn mul(self, rhs: Vector3<u32>) -> Self::Output {
+        rhs * self
+    }
+}
+
+
+impl Mul<Vector3<u64>> for u64 {
+    type Output = Vector3<u64>;
+
+    fn mul(self, rhs: Vector3<u64>) -> Self::Output {
+        rhs * self
+    }
+}
+
+
+impl Mul<Vector3<i32>> for i32 {
+    type Output = Vector3<i32>;
+
+    fn mul(self, rhs: Vector3<i32>) -> Self::Output {
+        rhs * self
+    }
+}
+
+
+impl Mul<Vector3<i64>> for i64 {
+    type Output = Vector3<i64>;
+
+    fn mul(self, rhs: Vector3<i64>) -> Self::Output {
+        rhs * self
+    }
+}
+
+
+impl Mul<Vector3<f32>> for f32 {
+    type Output = Vector3<f32>;
+
+    fn mul(self, rhs: Vector3<f32>) -> Self::Output {
+        rhs * self
+    }
+}
+
+
+impl Mul<Vector3<f64>> for f64 {
+    type Output = Vector3<f64>;
+
+    fn mul(self, rhs: Vector3<f64>) -> Self::Output {
+        rhs * self
+    }
+}
+
 impl<T: Number> MulAssign<T> for Vector3<T> {
     fn mul_assign(&mut self, rhs: T) {
         self.x *= rhs;
