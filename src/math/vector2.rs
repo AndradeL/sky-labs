@@ -141,7 +141,7 @@ impl<T: Number> IndexMut<usize> for Vector2<T> {
 
 impl<T: Number> Vector2<T> {
     /// Creates a new `Vector2` with the given x and y components.
-    pub fn new(x: T, y: T) -> Self {
+    pub const fn new(x: T, y: T) -> Self {
         Self { x, y }
     }
 
@@ -225,25 +225,44 @@ impl<T: Number> Vector2<T> {
         }
     }
 
+    pub const fn from_array(arr: [T; 2]) -> Self {
+        Self {
+            x: arr[0],
+            y: arr[1],
+        }
+    }
+
+    pub const fn to_array(&self) -> [T; 2] {
+        [self.x, self.y]
+    }
+
+    pub const fn from_slice(slice: &[T]) -> Self {
+        debug_assert!(slice.len() >= 2, "Slice must have at least 2 elements");
+        Self {
+            x: slice[0],
+            y: slice[1],
+        }
+    }
+
     /// Returns a slice representation of the vector.
-    pub fn as_slice(&self) -> &[T; 2] {
+    pub const fn as_slice(&self) -> &[T; 2] {
         unsafe { std::mem::transmute(self) }
     }
 
     /// Returns a mutable slice representation of the vector.
-    pub fn as_mut_slice(&mut self) -> &mut [T; 2] {
+    pub const fn as_mut_slice(&mut self) -> &mut [T; 2] {
         unsafe { std::mem::transmute(self) }
     }
 
     /// Returns a pointer to the vector's data.
     /// This is unsafe because it allows direct access to the vector's memory without bounds check.
-    pub unsafe fn as_ptr(&self) -> *const T {
+    pub const unsafe fn as_ptr(&self) -> *const T {
         &self.x as *const T
     }
 
     /// Returns a mutable pointer to the vector's data.
     /// This is unsafe because it allows direct access to the vector's memory without bounds check.
-    pub unsafe fn as_mut_ptr(&mut self) -> *mut T {
+    pub const unsafe fn as_mut_ptr(&mut self) -> *mut T {
         &mut self.x as *mut T
     }
 }

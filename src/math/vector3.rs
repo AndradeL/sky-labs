@@ -111,7 +111,6 @@ impl Mul<Vector3<u32>> for u32 {
     }
 }
 
-
 impl Mul<Vector3<u64>> for u64 {
     type Output = Vector3<u64>;
 
@@ -119,7 +118,6 @@ impl Mul<Vector3<u64>> for u64 {
         rhs * self
     }
 }
-
 
 impl Mul<Vector3<i32>> for i32 {
     type Output = Vector3<i32>;
@@ -129,7 +127,6 @@ impl Mul<Vector3<i32>> for i32 {
     }
 }
 
-
 impl Mul<Vector3<i64>> for i64 {
     type Output = Vector3<i64>;
 
@@ -138,7 +135,6 @@ impl Mul<Vector3<i64>> for i64 {
     }
 }
 
-
 impl Mul<Vector3<f32>> for f32 {
     type Output = Vector3<f32>;
 
@@ -146,7 +142,6 @@ impl Mul<Vector3<f32>> for f32 {
         rhs * self
     }
 }
-
 
 impl Mul<Vector3<f64>> for f64 {
     type Output = Vector3<f64>;
@@ -202,7 +197,7 @@ impl<T: Number> IndexMut<usize> for Vector3<T> {
 
 impl<T: Number> Vector3<T> {
     /// Creates a new `Vector3` with the given x, y, and z components.
-    pub fn new(x: T, y: T, z: T) -> Self {
+    pub const fn new(x: T, y: T, z: T) -> Self {
         Self { x, y, z }
     }
 
@@ -322,25 +317,46 @@ impl<T: Number> Vector3<T> {
         parallel_part + rejection * T::from_double(cos) + orthogonal_part * T::from_double(sin)
     }
 
+    pub const fn from_array(arr: [T; 3]) -> Self {
+        Self {
+            x: arr[0],
+            y: arr[1],
+            z: arr[2],
+        }
+    }
+
+    pub const fn to_array(&self) -> [T; 3] {
+        [self.x, self.y, self.z]
+    }
+
+    pub const fn from_slice(slice: &[T]) -> Self {
+        debug_assert!(slice.len() >= 3, "Slice must have at least 3 elements");
+        Self {
+            x: slice[0],
+            y: slice[1],
+            z: slice[2],
+        }
+    }
+
     /// Returns a slice representation of the vector.
-    pub fn as_slice(&self) -> &[T; 3] {
+    pub const fn as_slice(&self) -> &[T; 3] {
         unsafe { std::mem::transmute(self) }
     }
 
     /// Returns a mutable slice representation of the vector.
-    pub fn as_mut_slice(&mut self) -> &mut [T; 3] {
+    pub const fn as_mut_slice(&mut self) -> &mut [T; 3] {
         unsafe { std::mem::transmute(self) }
     }
 
     /// Returns a pointer to the vector's data.
     /// This is unsafe because it allows direct access to the vector's memory without bounds check.
-    pub unsafe fn as_ptr(&self) -> *const T {
+    pub const unsafe fn as_ptr(&self) -> *const T {
         &self.x as *const T
     }
 
     /// Returns a mutable pointer to the vector's data.
     /// This is unsafe because it allows direct access to the vector's memory without bounds check.
-    pub unsafe fn as_mut_ptr(&mut self) -> *mut T {
+    pub const unsafe fn as_mut_ptr(&mut self) -> *mut T {
         &mut self.x as *mut T
     }
 }
