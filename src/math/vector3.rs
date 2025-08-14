@@ -266,57 +266,6 @@ impl<T: Number> Vector3<T> {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
 
-    /// Rotates the vector around the X axis by the given angle in radians.
-    pub fn rotate_x(&self, rad: f64) -> Self {
-        let cos = rad.cos();
-        let sin = rad.sin();
-        let y: f64 = self.y.as_double();
-        let z: f64 = self.z.as_double();
-        Self {
-            x: self.x,
-            y: T::from_double(y * cos + z * sin),
-            z: T::from_double(y * sin + z * cos),
-        }
-    }
-
-    /// Rotates the vector around the Y axis by the given angle in radians.
-    pub fn rotate_y(&self, rad: f64) -> Self {
-        let cos = rad.cos();
-        let sin = rad.sin();
-        let x: f64 = self.x.as_double();
-        let z: f64 = self.z.as_double();
-        Self {
-            x: T::from_double(x * cos + z * sin),
-            y: self.y,
-            z: T::from_double(x * sin + z * cos),
-        }
-    }
-
-    /// Rotates the vector around the Z axis by the given angle in radians.
-    pub fn rotate_z(&self, rad: f64) -> Self {
-        let cos = rad.cos();
-        let sin = rad.sin();
-        let x: f64 = self.x.as_double();
-        let y: f64 = self.y.as_double();
-        Self {
-            x: T::from_double(x * cos + y * sin),
-            y: T::from_double(x * sin + y * cos),
-            z: self.z,
-        }
-    }
-
-    /// Rotates the vector around a given axis by the specified angle in radians.
-    pub fn rotate(&self, rad: f64, axis: &Self) -> Self {
-        let parallel_part = *axis * self.dot(axis);
-        let orthogonal_part = axis.cross(self);
-        let rejection = *self - parallel_part;
-
-        let cos = rad.cos();
-        let sin = rad.sin();
-
-        parallel_part + rejection * T::from_double(cos) + orthogonal_part * T::from_double(sin)
-    }
-
     pub const fn from_array(arr: [T; 3]) -> Self {
         Self {
             x: arr[0],
@@ -362,6 +311,57 @@ impl<T: Number> Vector3<T> {
 }
 
 impl Vector3<f32> {
+    /// Rotates the vector around the X axis by the given angle in radians.
+    pub fn rotate_x(&self, rad: f32) -> Self {
+        let cos = rad.cos();
+        let sin = rad.sin();
+        let y = self.y;
+        let z = self.z;
+        Self {
+            x: self.x,
+            y: y * cos - z * sin,
+            z: y * sin + z * cos,
+        }
+    }
+
+    /// Rotates the vector around the Y axis by the given angle in radians.
+    pub fn rotate_y(&self, rad: f32) -> Self {
+        let cos = rad.cos();
+        let sin = rad.sin();
+        let x = self.x;
+        let z = self.z;
+        Self {
+            x: x * cos - z * sin,
+            y: self.y,
+            z: x * sin + z * cos,
+        }
+    }
+
+    /// Rotates the vector around the Z axis by the given angle in radians.
+    pub fn rotate_z(&self, rad: f32) -> Self {
+        let cos = rad.cos();
+        let sin = rad.sin();
+        let x = self.x;
+        let y = self.y;
+        Self {
+            x: x * cos - y * sin,
+            y: x * sin + y * cos,
+            z: self.z,
+        }
+    }
+
+    /// Rotates the vector around a given axis by the specified angle in radians.
+    pub fn rotate(&self, rad: f32, axis: &Self) -> Self {
+        let parallel_part = *axis * self.dot(axis);
+        let orthogonal_part = axis.cross(self);
+        let rejection = *self - parallel_part;
+
+        let cos = rad.cos();
+        let sin = rad.sin();
+
+        parallel_part + rejection * cos + orthogonal_part * sin
+    }
+
     /// Returns a normalized version of this vector.
     /// If the vector is zero, it returns the vector itself.
     pub fn normalize(&self) -> Self {
@@ -381,6 +381,57 @@ impl Vector3<f32> {
 }
 
 impl Vector3<f64> {
+    /// Rotates the vector around the X axis by the given angle in radians.
+    pub fn rotate_x(&self, rad: f64) -> Self {
+        let cos = rad.cos();
+        let sin = rad.sin();
+        let y = self.y;
+        let z = self.z;
+        Self {
+            x: self.x,
+            y: y * cos - z * sin,
+            z: y * sin + z * cos,
+        }
+    }
+
+    /// Rotates the vector around the Y axis by the given angle in radians.
+    pub fn rotate_y(&self, rad: f64) -> Self {
+        let cos = rad.cos();
+        let sin = rad.sin();
+        let x = self.x;
+        let z = self.z;
+        Self {
+            x: x * cos - z * sin,
+            y: self.y,
+            z: x * sin + z * cos,
+        }
+    }
+
+    /// Rotates the vector around the Z axis by the given angle in radians.
+    pub fn rotate_z(&self, rad: f64) -> Self {
+        let cos = rad.cos();
+        let sin = rad.sin();
+        let x = self.x;
+        let y = self.y;
+        Self {
+            x: x * cos - y * sin,
+            y: x * sin + y * cos,
+            z: self.z,
+        }
+    }
+
+    /// Rotates the vector around a given axis by the specified angle in radians.
+    pub fn rotate(&self, rad: f64, axis: &Self) -> Self {
+        let parallel_part = *axis * self.dot(axis);
+        let orthogonal_part = axis.cross(self);
+        let rejection = *self - parallel_part;
+
+        let cos = rad.cos();
+        let sin = rad.sin();
+
+        parallel_part + rejection * cos + orthogonal_part * sin
+    }
+
     /// Returns a normalized version of this vector.
     /// If the vector is zero, it returns the vector itself.
     pub fn normalize(&self) -> Self {
