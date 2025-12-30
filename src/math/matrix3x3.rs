@@ -35,6 +35,8 @@ use super::{SignedNumber, Vector3};
 /// multiplication by another matrix, and multiplication by a vector.
 /// It also provides indexing for accessing individual rows, so you can use `matrix[0]` to access the first row.
 /// And `matrix[0][0]` to access the first element of the first row.
+/// It is generic over any type `T` that implements the `SignedNumber` trait.
+/// The matrix is stored in row-major order.
 #[derive(Debug, Copy, Clone, PartialEq, Default)]
 #[repr(C)]
 pub struct Matrix3x3<T: SignedNumber> {
@@ -478,8 +480,9 @@ impl<T: SignedNumber> Matrix3x3<T> {
 }
 
 impl Matrix3x3<f32> {
-    /// Creates a rotation matrix around the X-axis.
+    /// Creates a transform matrix to rotate around the X-axis.
     /// This matrix rotates points in the YZ plane by the specified angle in radians when applied to a vector.
+    /// Assuming a right-handed coordinate system.
     pub fn make_rotation_x(rad: f32) -> Self {
         let cos = rad.cos();
         let sin = rad.sin();
@@ -492,8 +495,9 @@ impl Matrix3x3<f32> {
         }
     }
 
-    /// Creates a rotation matrix around the Y-axis.
+    /// Creates a transform matrix to rotate around the Y-axis.
     /// This matrix rotates points in the XZ plane by the specified angle in radians when applied to a vector.
+    /// Assuming a right-handed coordinate system.
     pub fn make_rotation_y(rad: f32) -> Self {
         let cos = rad.cos();
         let sin = rad.sin();
@@ -506,8 +510,9 @@ impl Matrix3x3<f32> {
         }
     }
 
-    /// Creates a rotation matrix around the Z-axis.
+    /// Creates a transform matrix to rotate around the Z-axis.
     /// This matrix rotates points in the XY plane by the specified angle in radians when applied to a vector.
+    /// Assuming a right-handed coordinate system.
     pub fn make_rotation_z(rad: f32) -> Self {
         let cos = rad.cos();
         let sin = rad.sin();
@@ -521,6 +526,7 @@ impl Matrix3x3<f32> {
     }
 
     /// Creates a rotation matrix around an arbitrary axis.
+    /// Assuming a right-handed coordinate system.
     pub fn make_rotation(rad: f32, axis: &Vector3<f32>) -> Self {
         let cos = rad.cos();
         let sin = rad.sin();
@@ -619,8 +625,9 @@ impl Matrix3x3<f32> {
 }
 
 impl Matrix3x3<f64> {
-    /// Creates a rotation matrix around the X-axis.
+    /// Creates a transform matrix to rotate around the X-axis.
     /// This matrix rotates points in the YZ plane by the specified angle in radians when applied to a vector.
+    /// Assuming a right-handed coordinate system.
     pub fn make_rotation_x(rad: f64) -> Self {
         let cos = rad.cos();
         let sin = rad.sin();
@@ -633,8 +640,9 @@ impl Matrix3x3<f64> {
         }
     }
 
-    /// Creates a rotation matrix around the Y-axis.
+    /// Creates a transform matrix to rotate around the Y-axis.
     /// This matrix rotates points in the XZ plane by the specified angle in radians when applied to a vector.
+    /// Assuming a right-handed coordinate system.
     pub fn make_rotation_y(rad: f64) -> Self {
         let cos = rad.cos();
         let sin = rad.sin();
@@ -647,8 +655,9 @@ impl Matrix3x3<f64> {
         }
     }
 
-    /// Creates a rotation matrix around the Z-axis.
+    /// Creates a transform matrix to rotate around the Z-axis.
     /// This matrix rotates points in the XY plane by the specified angle in radians when applied to a vector.
+    /// Assuming a right-handed coordinate system.
     pub fn make_rotation_z(rad: f64) -> Self {
         let cos = rad.cos();
         let sin = rad.sin();
@@ -661,7 +670,8 @@ impl Matrix3x3<f64> {
         }
     }
 
-    /// Creates a rotation matrix around an arbitrary axis.
+    /// Creates a transform matrix to rotate around an arbitrary axis.
+    /// Assuming a right-handed coordinate system.
     pub fn make_rotation(rad: f64, axis: &Vector3<f64>) -> Self {
         let cos = rad.cos();
         let sin = rad.sin();
@@ -676,7 +686,7 @@ impl Matrix3x3<f64> {
                 Vector3::new(
                     cos + x * x * one_minus_cos,
                     y * x * one_minus_cos + z * sin,
-                    z * x * one_minus_cos - y * sin,
+                    z * x * one_minus_cos + y * sin,
                 ),
                 Vector3::new(
                     x * y * one_minus_cos - z * sin,
@@ -736,9 +746,9 @@ impl Matrix3x3<f64> {
         }
     }
 
-    /// Creates a skew transformation matrix that skews points along the specified axes.
-    /// It skews points by `rad` along the `direction` in regards to the `pivot` axis,
-    /// which is used to measure the distance to determine how far to skew.
+    /// Creates a skew transformation matrix that skews points by `rad` along
+    /// the `direction` in regards to the `pivot` axis, which is used to
+    /// measure the distance to determine how far to skew.
     /// It assumes the `direction` and `pivot` vectors are normalized.
     pub fn make_skew(rad: f64, direction: &Vector3<f64>, pivot: &Vector3<f64>) -> Self {
         debug_assert!(direction.is_normalized(), "`direction` must be normalized");
