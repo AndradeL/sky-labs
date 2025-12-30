@@ -22,3 +22,6 @@ Cargo.lock
 
 # VS Code
 .vscode/
+
+# Zed Editor
+.zed/
