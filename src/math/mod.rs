@@ -24,6 +24,7 @@ mod rect;
 mod size;
 mod vector2;
 mod vector3;
+mod vector4;
 
 pub use self::matrix3x3::Matrix3x3;
 pub use self::number::Wrap;
@@ -32,6 +33,7 @@ pub use self::rect::Rect;
 pub use self::size::Size;
 pub use self::vector2::Vector2;
 pub use self::vector3::Vector3;
+pub use self::vector4::Vector4;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Direction {
