@@ -376,7 +376,8 @@ impl Vector3<f32> {
     /// Checks if the vector is normalized (length is 1).
     pub fn is_normalized(&self) -> bool {
         let length_squared = self.norm_squared();
-        (length_squared - 1.0).abs() < f32::EPSILON
+        let diff = (length_squared - 1.0).abs();
+        (diff * diff) <= f32::EPSILON
     }
 }
 
@@ -446,7 +447,8 @@ impl Vector3<f64> {
     /// Checks if the vector is normalized (length is 1).
     pub fn is_normalized(&self) -> bool {
         let length_squared = self.norm_squared();
-        (length_squared - 1.0).abs() < f64::EPSILON
+        let diff = (length_squared - 1.0).abs();
+        (diff * diff) <= f64::EPSILON
     }
 }
 

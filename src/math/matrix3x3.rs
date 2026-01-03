@@ -601,13 +601,18 @@ impl Matrix3x3<f32> {
         }
     }
 
-    /// Creates a skew transformation matrix that skews points along the specified axes.
-    /// It skews points by `rad` along the `direction` in regards to the `pivot` axis,
-    /// which is used to measure the distance to determine how far to skew.
-    /// It assumes the `direction` and `pivot` vectors are normalized.
+    /// Creates a skew transformation matrix that skews points by `rad` along
+    /// the `direction` in regards to the `pivot` axis, which is used to
+    /// measure the distance to determine how far to skew.
+    /// It assumes the `direction` vector is normalized and
+    /// the `pivot` is non-zero and perpendicular to the `direction` vector.
     pub fn make_skew(rad: f32, direction: &Vector3<f32>, pivot: &Vector3<f32>) -> Self {
         debug_assert!(direction.is_normalized(), "Direction must be normalized");
-        debug_assert!(pivot.is_normalized(), "Pivot must be normalized");
+        debug_assert!(pivot.magnitude() > 0.0, "`pivot` must not be origin");
+        debug_assert!(
+            pivot.dot(&direction) == 0.0,
+            "`pivot` must be perpendicular to `direction`"
+        );
 
         let tan = rad.tan();
         let x = direction.x * tan;
@@ -749,10 +754,15 @@ impl Matrix3x3<f64> {
     /// Creates a skew transformation matrix that skews points by `rad` along
     /// the `direction` in regards to the `pivot` axis, which is used to
     /// measure the distance to determine how far to skew.
-    /// It assumes the `direction` and `pivot` vectors are normalized.
+    /// It assumes the `direction` vector is normalized and
+    /// the `pivot` is non-zero and perpendicular to the `direction` vector.
     pub fn make_skew(rad: f64, direction: &Vector3<f64>, pivot: &Vector3<f64>) -> Self {
         debug_assert!(direction.is_normalized(), "`direction` must be normalized");
-        debug_assert!(pivot.is_normalized(), "`pivot` must be normalized");
+        debug_assert!(pivot.magnitude() > 0.0, "`pivot` must not be origin");
+        debug_assert!(
+            pivot.dot(&direction) == 0.0,
+            "`pivot` must be perpendicular to `direction`"
+        );
 
         let tan = rad.tan();
         let x = direction.x * tan;

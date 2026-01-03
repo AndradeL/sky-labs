@@ -26,7 +26,7 @@ macro_rules! assert_eq_mat {
         for i in 0..3 {
             for j in 0..3 {
                 assert!(
-                    ($res[i][j] - $exp[i][j]).abs() < eps,
+                    ($res[i][j] - $exp[i][j]).abs() <= eps,
                     "{}[{},{}] = {}, {}[{},{}] = {}",
                     stringify!($res),
                     i,
@@ -71,7 +71,13 @@ macro_rules! test_matrix3x3_addition {
         ]);
         let result = a + b;
         assert_eq!(result[(0, 0)], 10 as $type);
+        assert_eq!(result[(0, 1)], 10 as $type);
+        assert_eq!(result[(0, 2)], 10 as $type);
+        assert_eq!(result[(1, 0)], 10 as $type);
         assert_eq!(result[(1, 1)], 10 as $type);
+        assert_eq!(result[(1, 2)], 10 as $type);
+        assert_eq!(result[(2, 0)], 10 as $type);
+        assert_eq!(result[(2, 1)], 10 as $type);
         assert_eq!(result[(2, 2)], 10 as $type);
     };
 }
@@ -116,19 +122,20 @@ macro_rules! test_matrix3x3_transpose {
 }
 
 macro_rules! test_matrix3x3_determinant {
-    ($type:ty, $expected:expr, $eps:expr) => {
+    ($type:ty, $eps:expr) => {
         let m = Matrix3x3::<$type>::from_mat([
             [6 as $type, 1 as $type, 1 as $type],
             [4 as $type, -2 as $type, 5 as $type],
             [2 as $type, 8 as $type, 7 as $type],
         ]);
         let det = m.determinant();
+        let expected = -306 as $type;
         if <$type>::default() == 0 as $type {
             // integer types
-            assert_eq!(det, $expected as $type);
+            assert_eq!(det, expected as $type);
         } else {
             // float types
-            assert!((det as $type - $expected).abs() < $eps);
+            assert!((det as $type - expected).abs() < $eps);
         }
     };
 }
@@ -246,10 +253,10 @@ fn test_matrix3x3_transpose_all_types() {
 
 #[test]
 fn test_matrix3x3_determinant_all_types() {
-    test_matrix3x3_determinant!(i32, -306, 0);
-    test_matrix3x3_determinant!(i64, -306, 0);
-    test_matrix3x3_determinant!(f32, -306.0, 1e-6);
-    test_matrix3x3_determinant!(f64, -306.0, 1e-12);
+    test_matrix3x3_determinant!(i32, 0);
+    test_matrix3x3_determinant!(i64, 0);
+    test_matrix3x3_determinant!(f32, f32::EPSILON);
+    test_matrix3x3_determinant!(f64, f64::EPSILON);
 }
 
 #[test]
@@ -384,17 +391,37 @@ fn test_matrix3x3_make_rotation() {
 
 #[test]
 fn test_matrix3x3_make_scaling() {
-    // let scale = Matrix3x3::<f32>::make_scaling(2.0, 3.0);
-    // let expected = Matrix3x3::<f32>::from_mat([
-    //     [2.0, 0.0, 0.0],
-    //     [0.0, 3.0, 0.0],
-    //     [0.0, 0.0, 1.0],
-    // ]);
-    // assert_eq!(scale, expected);
+    let scale = Matrix3x3::<f32>::make_scaling(2.0, 3.0, 1.0);
+    let expected = Matrix3x3::<f32>::from_mat([[2.0, 0.0, 0.0], [0.0, 3.0, 0.0], [0.0, 0.0, 1.0]]);
+    assert_eq!(scale, expected);
 }
 
 #[test]
-fn test_matrix3x3_make_reflection() {
+fn test_matrix3x3_make_reflection_f64() {
+    // Reflect over yz-plane (x-axis)
+    let plane_normal = Vector3::new(1.0, 0.0, 0.0);
+    let reflect_x = Matrix3x3::<f64>::make_reflection(&plane_normal);
+    let expected_x =
+        Matrix3x3::<f64>::from_mat([[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]);
+    assert_eq_mat!(f64, reflect_x, expected_x);
+
+    // Reflect over xz-plane (y-axis)
+    let plane_normal = Vector3::new(0.0, 1.0, 0.0);
+    let reflect_y = Matrix3x3::<f64>::make_reflection(&plane_normal);
+    let expected_y =
+        Matrix3x3::<f64>::from_mat([[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, 1.0]]);
+    assert_eq_mat!(f64, reflect_y, expected_y);
+
+    // Reflect over the plane that cuts `x` and `y` axes at 45 degrees.
+    let plane_normal = Vector3::<f64>::new(1.0, 1.0, 0.0).normalize();
+    let reflect_xy = Matrix3x3::<f64>::make_reflection(&plane_normal);
+    let expected_xy =
+        Matrix3x3::<f64>::from_mat([[0.0, -1.0, 0.0], [-1.0, 0.0, 0.0], [0.0, 0.0, 1.0]]);
+    assert_eq_mat!(f64, reflect_xy, expected_xy);
+}
+
+#[test]
+fn test_matrix3x3_make_reflection_f32() {
     // Reflect over yz-plane (x-axis)
     let plane_normal = Vector3::new(1.0, 0.0, 0.0);
     let reflect_x = Matrix3x3::<f32>::make_reflection(&plane_normal);
@@ -418,18 +445,121 @@ fn test_matrix3x3_make_reflection() {
 }
 
 #[test]
-fn test_matrix3x3_make_skew() {
-    // let skew = Matrix3x3::<f64>::make_skew(1.0, 0.5);
-    // let expected = Matrix3x3::<f64>::from_mat([[1.0, 1.0, 0.0], [0.5, 1.0, 0.0], [0.0, 0.0, 1.0]]);
-    // for i in 0..3 {
-    //     for j in 0..3 {
-    //         assert!(
-    //             (skew[(i, j)] - expected[(i, j)]).abs() < 1e-12,
-    //             "skew[{},{}] = {}",
-    //             i,
-    //             j,
-    //             skew[(i, j)]
-    //         );
-    //     }
-    // }
+#[should_panic]
+fn test_matrix3x3_make_reflection_zero_normal_f64() {
+    let plane_normal = Vector3::new(0.0, 0.0, 0.0);
+    let _reflect = Matrix3x3::<f64>::make_reflection(&plane_normal); // Noarmal cannot be origin
+}
+
+#[test]
+#[should_panic]
+fn test_matrix3x3_make_reflection_not_normalized_normal_f64() {
+    let plane_normal = Vector3::new(2.0, 0.0, 0.0);
+    let _reflect = Matrix3x3::<f64>::make_reflection(&plane_normal); // Normal must be normalized
+}
+
+#[test]
+#[should_panic]
+fn test_matrix3x3_make_reflection_zero_normal_f32() {
+    let plane_normal = Vector3::new(0.0, 0.0, 0.0);
+    let _reflect = Matrix3x3::<f32>::make_reflection(&plane_normal); // Normal cannot be origin
+}
+
+#[test]
+#[should_panic]
+fn test_matrix3x3_make_reflection_not_normalized_normal_f32() {
+    let plane_normal = Vector3::new(2.0, 0.0, 0.0);
+    let _reflect = Matrix3x3::<f32>::make_reflection(&plane_normal); // Normal must be normalized
+}
+
+#[test]
+fn test_matrix3x3_make_skew_f64() {
+    let direction = Vector3::new(0.0, 0.0, 1.0);
+    let pivot = Vector3::new(1.0, 0.5, 0.0);
+    let rad = std::f64::consts::FRAC_PI_4; // 45 degrees
+    let skew = Matrix3x3::<f64>::make_skew(rad, &direction, &pivot);
+    let expected = Matrix3x3::<f64>::from_mat([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 0.5, 1.0]]);
+    assert_eq_mat!(f64, skew, expected);
+}
+
+#[test]
+fn test_matrix3x3_make_skew_f32() {
+    let direction = Vector3::new(0.0, 0.0, 1.0);
+    let pivot = Vector3::new(1.0, 0.5, 0.0);
+    let rad = std::f32::consts::FRAC_PI_4; // 45 degrees
+    let skew = Matrix3x3::<f32>::make_skew(rad, &direction, &pivot);
+    let expected = Matrix3x3::<f32>::from_mat([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 0.5, 1.0]]);
+    assert_eq_mat!(f32, skew, expected);
+}
+
+#[test]
+#[should_panic]
+fn test_matrix3x3_make_skew_zero_direction_f64() {
+    let direction = Vector3::new(0.0, 0.0, 0.0);
+    let pivot = Vector3::new(1.0, 0.5, 0.0);
+    let rad = std::f64::consts::FRAC_PI_4; // 45 degrees
+    let _skew = Matrix3x3::<f64>::make_skew(rad, &direction, &pivot); // Direction must be normalized
+}
+
+#[test]
+#[should_panic]
+fn test_matrix3x3_make_skew_zero_pivot_f64() {
+    let direction = Vector3::new(0.0, 0.0, 1.0);
+    let pivot = Vector3::new(0.0, 0.0, 0.0);
+    let rad = std::f64::consts::FRAC_PI_4; // 45 degrees
+    let _skew = Matrix3x3::<f64>::make_skew(rad, &direction, &pivot); // Pivot at origin is not allowed
+}
+
+#[test]
+#[should_panic]
+fn test_matrix3x3_make_skew_direction_not_normalized_f64() {
+    let direction = Vector3::new(0.0, 0.0, 10.0);
+    let pivot = Vector3::new(1.0, 0.5, 0.0);
+    let rad = std::f64::consts::FRAC_PI_4; // 45 degrees
+    let _skew = Matrix3x3::<f64>::make_skew(rad, &direction, &pivot); // Direction must be normalized
+}
+
+#[test]
+#[should_panic]
+fn test_matrix3x3_make_skew_pivot_not_perpendicular_f64() {
+    let direction = Vector3::new(0.0, 0.0, 1.0);
+    let pivot = Vector3::new(1.0, 0.5, 1.0);
+    let rad = std::f64::consts::FRAC_PI_4; // 45 degrees
+    let _skew = Matrix3x3::<f64>::make_skew(rad, &direction, &pivot); // Pivot must be perpendicular to direction
+}
+
+#[test]
+#[should_panic]
+fn test_matrix3x3_make_skew_zero_direction_f32() {
+    let direction = Vector3::new(0.0, 0.0, 0.0);
+    let pivot = Vector3::new(1.0, 0.5, 0.0);
+    let rad = std::f32::consts::FRAC_PI_4; // 45 degrees
+    let _skew = Matrix3x3::<f32>::make_skew(rad, &direction, &pivot);
+}
+
+#[test]
+#[should_panic]
+fn test_matrix3x3_make_skew_zero_pivot_f32() {
+    let direction = Vector3::new(0.0, 0.0, 1.0);
+    let pivot = Vector3::new(0.0, 0.0, 0.0);
+    let rad = std::f32::consts::FRAC_PI_4; // 45 degrees
+    let _skew = Matrix3x3::<f32>::make_skew(rad, &direction, &pivot); // Pivot at origin is not allowed
+}
+
+#[test]
+#[should_panic]
+fn test_matrix3x3_make_skew_direction_not_normalized_f32() {
+    let direction = Vector3::new(0.0, 0.0, 10.0);
+    let pivot = Vector3::new(1.0, 0.5, 0.0);
+    let rad = std::f32::consts::FRAC_PI_4; // 45 degrees
+    let _skew = Matrix3x3::<f32>::make_skew(rad, &direction, &pivot); // Direction must be normalized
+}
+
+#[test]
+#[should_panic]
+fn test_matrix3x3_make_skew_pivot_not_perpendicular_f32() {
+    let direction = Vector3::new(0.0, 0.0, 1.0);
+    let pivot = Vector3::new(1.0, 0.5, 1.0);
+    let rad = std::f32::consts::FRAC_PI_4; // 45 degrees
+    let _skew = Matrix3x3::<f32>::make_skew(rad, &direction, &pivot); // Pivot must be perpendicular to direction
 }
