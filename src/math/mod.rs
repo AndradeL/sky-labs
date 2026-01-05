@@ -27,6 +27,7 @@ mod vector3;
 mod vector4;
 
 pub use self::matrix3x3::Matrix3x3;
+pub use self::matrix4x4::Matrix4x4;
 pub use self::number::Wrap;
 pub(crate) use self::number::{Number, SignedNumber};
 pub use self::rect::Rect;
