@@ -21,70 +21,28 @@ pub trait AsDouble {
     fn as_double(self) -> f64;
 }
 
-impl AsDouble for f64 {
-    fn as_double(self) -> f64 {
-        self
-    }
-}
-impl AsDouble for f32 {
-    fn as_double(self) -> f64 {
-        self as f64
-    }
-}
-impl AsDouble for i32 {
-    fn as_double(self) -> f64 {
-        self as f64
-    }
-}
-impl AsDouble for i64 {
-    fn as_double(self) -> f64 {
-        self as f64
-    }
-}
-impl AsDouble for u32 {
-    fn as_double(self) -> f64 {
-        self as f64
-    }
+macro_rules! impl_as_double {
+    ($($t:ty)*) => ($(
+        impl AsDouble for $t {
+            #[inline]
+            fn as_double(self) -> f64 { self as f64 }
+        }
+    )*)
 }
 
-impl AsDouble for u64 {
-    fn as_double(self) -> f64 {
-        self as f64
-    }
-}
+impl_as_double! { f64 f32 i32 i64 u32 u64 }
 
 pub trait FromDouble {
     fn from_double(value: f64) -> Self;
 }
 
-impl FromDouble for f64 {
-    fn from_double(value: f64) -> Self {
-        value as Self
-    }
-}
-impl FromDouble for f32 {
-    fn from_double(value: f64) -> Self {
-        value as Self
-    }
-}
-impl FromDouble for i32 {
-    fn from_double(value: f64) -> Self {
-        value as Self
-    }
-}
-impl FromDouble for i64 {
-    fn from_double(value: f64) -> Self {
-        value as Self
-    }
-}
-impl FromDouble for u32 {
-    fn from_double(value: f64) -> Self {
-        value as Self
-    }
+macro_rules! impl_from_double {
+    ($($t:ty)*) => ($(
+        impl FromDouble for $t {
+            #[inline]
+            fn from_double(value: f64) -> Self { value as Self }
+        }
+    )*)
 }
 
-impl FromDouble for u64 {
-    fn from_double(value: f64) -> Self {
-        value as Self
-    }
-}
+impl_from_double! { f64 f32 i32 i64 u32 u64 }

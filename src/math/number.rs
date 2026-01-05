@@ -28,8 +28,8 @@ pub use self::wrap::Wrap;
 
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
-// TODO: change to trait alias once issue is merged
-// https://github.com/rust-lang/rust/issues/41517
+// TODO: consider making this trait const once issue is merged
+// https://github.com/rust-lang/rust/issues/143874
 pub trait Number:
     Sized
     + Add<Output = Self>
@@ -52,68 +52,29 @@ pub trait Number:
     fn one() -> Self;
 }
 
-impl Number for f64 {
-    fn zero() -> Self {
-        0.0
-    }
-
-    fn one() -> Self {
-        1.0
-    }
+macro_rules! impl_number {
+    ($($t:ty)*) => ($(
+        impl Number for $t {
+            #[inline]
+            fn zero() -> $t { 0 as $t }
+            #[inline]
+            fn one() -> $t { 1 as $t }
+        }
+    )*)
 }
 
-impl Number for f32 {
-    fn zero() -> Self {
-        0.0
-    }
-
-    fn one() -> Self {
-        1.0
-    }
-}
-
-impl Number for u64 {
-    fn zero() -> Self {
-        0
-    }
-
-    fn one() -> Self {
-        1
-    }
-}
-
-impl Number for i64 {
-    fn zero() -> Self {
-        0
-    }
-
-    fn one() -> Self {
-        1
-    }
-}
-
-impl Number for u32 {
-    fn zero() -> Self {
-        0
-    }
-
-    fn one() -> Self {
-        1
-    }
-}
-
-impl Number for i32 {
-    fn zero() -> Self {
-        0
-    }
-
-    fn one() -> Self {
-        1
-    }
-}
+impl_number! { u32 u64 i32 i64 f32 f64 }
 
 pub trait SignedNumber: Number + Neg<Output = Self> + Abs {}
 impl SignedNumber for f64 {}
 impl SignedNumber for f32 {}
 impl SignedNumber for i64 {}
 impl SignedNumber for i32 {}
+
+pub trait SignedInteger: SignedNumber {}
+impl SignedInteger for i64 {}
+impl SignedInteger for i32 {}
+
+pub trait FloatingPointNumber: SignedNumber {}
+impl FloatingPointNumber for f64 {}
+impl FloatingPointNumber for f32 {}
