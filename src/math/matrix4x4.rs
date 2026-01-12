@@ -17,16 +17,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use std::ops::Add;
-use std::ops::AddAssign;
-use std::ops::Index;
-use std::ops::IndexMut;
-use std::ops::Mul;
-use std::ops::MulAssign;
-use std::ops::Sub;
-use std::ops::SubAssign;
+use std::ops::{
+    Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
+};
 
-use super::{SignedNumber, Vector3, Vector4};
+use crate::math::{SignedNumber, Vector3, Vector4};
 
 /// A 4x4 matrix represented as an array of four `Vector4<T>` as rows.
 /// It supports addition, subtraction, multiplication by a scalar,
@@ -35,7 +30,8 @@ use super::{SignedNumber, Vector3, Vector4};
 /// And `matrix[i][j]` to access the j-th element of the i-th row.
 /// It is generic over any type `T` that implements the `SignedNumber` trait.
 /// The matrix is stored in row-major order.
-/// The transform matrices are designed for working with 3-dimensional coordinate systems
+/// The transform matrices are supported for `FloatingPointNumber` trait,
+/// They are designed for working with 3-dimensional coordinate systems
 /// with quaternion support, and follow the right-handed coordinate system convention.
 #[derive(Debug, Copy, Clone, PartialEq, Default)]
 #[repr(C)]
@@ -43,9 +39,47 @@ pub struct Matrix4x4<T: SignedNumber> {
     mat: [Vector4<T>; 4],
 }
 
+impl<T: SignedNumber> Neg for Matrix4x4<T> {
+    type Output = Self;
+
+    #[inline]
+    fn neg(self) -> Self::Output {
+        Self {
+            mat: [
+                Vector4 {
+                    x: -self.mat[0][0],
+                    y: -self.mat[0][1],
+                    z: -self.mat[0][2],
+                    w: -self.mat[0][3],
+                },
+                Vector4 {
+                    x: -self.mat[1][0],
+                    y: -self.mat[1][1],
+                    z: -self.mat[1][2],
+                    w: -self.mat[1][3],
+                },
+                Vector4 {
+                    x: -self.mat[2][0],
+                    y: -self.mat[2][1],
+                    z: -self.mat[2][2],
+                    w: -self.mat[2][3],
+                },
+                Vector4 {
+                    x: -self.mat[3][0],
+                    y: -self.mat[3][1],
+                    z: -self.mat[3][2],
+                    w: -self.mat[3][3],
+                },
+            ],
+        }
+    }
+}
+forward_ref_unop!(impl<T> Neg, neg for Matrix4x4<T> where T: SignedNumber);
+
 impl<T: SignedNumber> Add for Matrix4x4<T> {
     type Output = Self;
 
+    #[inline]
     fn add(self, rhs: Self) -> Self::Output {
         Self {
             mat: [
@@ -57,8 +91,10 @@ impl<T: SignedNumber> Add for Matrix4x4<T> {
         }
     }
 }
+forward_ref_binop!(impl<T> Add, add for Matrix4x4<T>, Matrix4x4<T> where T: SignedNumber);
 
 impl<T: SignedNumber> AddAssign for Matrix4x4<T> {
+    #[inline]
     fn add_assign(&mut self, rhs: Self) {
         self[0] += rhs[0];
         self[1] += rhs[1];
@@ -66,10 +102,12 @@ impl<T: SignedNumber> AddAssign for Matrix4x4<T> {
         self[3] += rhs[3];
     }
 }
+forward_ref_op_assign!(impl<T> AddAssign, add_assign for Matrix4x4<T>, Matrix4x4<T> where T: SignedNumber);
 
 impl<T: SignedNumber> Sub for Matrix4x4<T> {
     type Output = Self;
 
+    #[inline]
     fn sub(self, rhs: Self) -> Self::Output {
         Self {
             mat: [
@@ -81,8 +119,10 @@ impl<T: SignedNumber> Sub for Matrix4x4<T> {
         }
     }
 }
+forward_ref_binop!(impl<T> Sub, sub for Matrix4x4<T>, Matrix4x4<T> where T: SignedNumber);
 
 impl<T: SignedNumber> SubAssign for Matrix4x4<T> {
+    #[inline]
     fn sub_assign(&mut self, rhs: Self) {
         self[0] -= rhs[0];
         self[1] -= rhs[1];
@@ -90,18 +130,28 @@ impl<T: SignedNumber> SubAssign for Matrix4x4<T> {
         self[3] -= rhs[3];
     }
 }
+forward_ref_op_assign!(impl<T> SubAssign, sub_assign for Matrix4x4<T>, Matrix4x4<T> where T: SignedNumber);
 
 impl<T: SignedNumber> Mul<T> for Matrix4x4<T> {
     type Output = Self;
 
+    #[inline]
     fn mul(self, rhs: T) -> Self::Output {
         Self {
             mat: [self[0] * rhs, self[1] * rhs, self[2] * rhs, self[3] * rhs],
         }
     }
 }
+forward_ref_binop!(impl<T> Mul, mul for Matrix4x4<T>, T where T: SignedNumber);
+implement_scalar_lhs_mul! {
+    Matrix4x4<i32>, i32;
+    Matrix4x4<i64>, i64;
+    Matrix4x4<f32>, f32;
+    Matrix4x4<f64>, f64
+}
 
 impl<T: SignedNumber> MulAssign<T> for Matrix4x4<T> {
+    #[inline]
     fn mul_assign(&mut self, rhs: T) {
         self[0] *= rhs;
         self[1] *= rhs;
@@ -109,10 +159,35 @@ impl<T: SignedNumber> MulAssign<T> for Matrix4x4<T> {
         self[3] *= rhs;
     }
 }
+forward_ref_op_assign!(impl<T> MulAssign, mul_assign for Matrix4x4<T>, T where T: SignedNumber);
+
+impl<T: SignedNumber> Div<T> for Matrix4x4<T> {
+    type Output = Self;
+
+    #[inline]
+    fn div(self, rhs: T) -> Self::Output {
+        Self {
+            mat: [self[0] / rhs, self[1] / rhs, self[2] / rhs, self[3] / rhs],
+        }
+    }
+}
+forward_ref_binop!(impl<T> Div, div for Matrix4x4<T>, T where T: SignedNumber);
+
+impl<T: SignedNumber> DivAssign<T> for Matrix4x4<T> {
+    #[inline]
+    fn div_assign(&mut self, rhs: T) {
+        self[0] /= rhs;
+        self[1] /= rhs;
+        self[2] /= rhs;
+        self[3] /= rhs;
+    }
+}
+forward_ref_op_assign!(impl<T> DivAssign, div_assign for Matrix4x4<T>, T where T: SignedNumber);
 
 impl<T: SignedNumber> Mul<Matrix4x4<T>> for Matrix4x4<T> {
     type Output = Self;
 
+    #[inline]
     fn mul(self, rhs: Matrix4x4<T>) -> Self::Output {
         Self {
             mat: [
@@ -192,8 +267,10 @@ impl<T: SignedNumber> Mul<Matrix4x4<T>> for Matrix4x4<T> {
         }
     }
 }
+forward_ref_binop!(impl<T> Mul, mul for Matrix4x4<T>, Matrix4x4<T> where T: SignedNumber);
 
 impl<T: SignedNumber> MulAssign<Matrix4x4<T>> for Matrix4x4<T> {
+    #[inline]
     fn mul_assign(&mut self, rhs: Matrix4x4<T>) {
         *self = *self * rhs;
     }
@@ -203,6 +280,7 @@ impl<T: SignedNumber> MulAssign<Matrix4x4<T>> for Matrix4x4<T> {
 impl<T: SignedNumber> Mul<Vector4<T>> for Matrix4x4<T> {
     type Output = Vector4<T>;
 
+    #[inline]
     fn mul(self, rhs: Vector4<T>) -> Self::Output {
         Vector4 {
             x: self[0].dot(&rhs),
@@ -217,6 +295,7 @@ impl<T: SignedNumber> Mul<Vector4<T>> for Matrix4x4<T> {
 impl<T: SignedNumber> Mul<Matrix4x4<T>> for Vector4<T> {
     type Output = Vector4<T>;
 
+    #[inline]
     fn mul(self, rhs: Matrix4x4<T>) -> Self::Output {
         Vector4 {
             x: self.x * rhs[0][0] + self.y * rhs[1][0] + self.z * rhs[2][0] + self.w * rhs[3][0],
@@ -227,22 +306,47 @@ impl<T: SignedNumber> Mul<Matrix4x4<T>> for Vector4<T> {
     }
 }
 
-impl<T: SignedNumber> Index<usize> for Matrix4x4<T>
-where
-    T: SignedNumber,
-{
+impl<T: SignedNumber> From<&[T]> for Matrix4x4<T> {
+    #[inline]
+    fn from(slice: &[T]) -> Self {
+        Self::from_slice(slice)
+    }
+}
+
+impl<'a, T: SignedNumber> From<&'a [T]> for &'a Matrix4x4<T> {
+    #[inline]
+    fn from(slice: &'a [T]) -> Self {
+        debug_assert!(slice.len() >= 16, "Slice must have at least 16 elements");
+        unsafe { std::mem::transmute(&slice[0]) }
+    }
+}
+
+impl<T: SignedNumber> From<[T; 16]> for Matrix4x4<T> {
+    #[inline]
+    fn from(array: [T; 16]) -> Self {
+        Self::from_array(array)
+    }
+}
+
+impl<T: SignedNumber> From<[[T; 4]; 4]> for Matrix4x4<T> {
+    #[inline]
+    fn from(mat: [[T; 4]; 4]) -> Self {
+        Self::from_mat(mat)
+    }
+}
+
+impl<T: SignedNumber> Index<usize> for Matrix4x4<T> {
     type Output = Vector4<T>;
 
+    #[inline]
     fn index(&self, index: usize) -> &Self::Output {
         debug_assert!(index < 4);
         &self.mat[index]
     }
 }
 
-impl<T: SignedNumber> IndexMut<usize> for Matrix4x4<T>
-where
-    T: SignedNumber,
-{
+impl<T: SignedNumber> IndexMut<usize> for Matrix4x4<T> {
+    #[inline]
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         debug_assert!(index < 4);
         &mut self.mat[index]
@@ -252,6 +356,7 @@ where
 impl<T: SignedNumber> Index<(usize, usize)> for Matrix4x4<T> {
     type Output = T;
 
+    #[inline]
     fn index(&self, index: (usize, usize)) -> &Self::Output {
         debug_assert!(index.0 < 4 && index.1 < 4);
         &self.mat[index.0][index.1]
@@ -259,6 +364,7 @@ impl<T: SignedNumber> Index<(usize, usize)> for Matrix4x4<T> {
 }
 
 impl<T: SignedNumber> IndexMut<(usize, usize)> for Matrix4x4<T> {
+    #[inline]
     fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
         debug_assert!(index.0 < 4 && index.1 < 4);
         &mut self.mat[index.0][index.1]
@@ -473,7 +579,7 @@ impl<T: SignedNumber> Matrix4x4<T> {
     }
 
     pub const fn from_slice(slice: &[T]) -> Self {
-        debug_assert!(slice.len() < 16, "Matrix4x4 must have at least 16 elements");
+        debug_assert!(slice.len() >= 16, "Matrix4x4 requires at least 16 elements");
         Self {
             mat: [
                 Vector4::new(slice[0], slice[1], slice[2], slice[3]),

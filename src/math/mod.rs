@@ -17,6 +17,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+#[macro_use]
+mod internal_macros;
+
 mod matrix3x3;
 mod matrix4x4;
 mod number;

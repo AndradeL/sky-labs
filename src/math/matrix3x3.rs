@@ -17,18 +17,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use std::ops::Add;
-use std::ops::AddAssign;
-use std::ops::Div;
-use std::ops::DivAssign;
-use std::ops::Index;
-use std::ops::IndexMut;
-use std::ops::Mul;
-use std::ops::MulAssign;
-use std::ops::Neg;
-use std::ops::Sub;
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub};
 
-use super::{SignedNumber, Vector3};
+use crate::math::{SignedNumber, Vector3};
 
 /// A 3x3 matrix represented as an array of three `Vector3<T>` **rows**.
 /// It supports addition, subtraction, multiplication by a scalar,
@@ -43,12 +34,10 @@ pub struct Matrix3x3<T: SignedNumber> {
     mat: [Vector3<T>; 3],
 }
 
-impl<T> Neg for Matrix3x3<T>
-where
-    T: SignedNumber + Neg<Output = T>,
-{
+impl<T: SignedNumber> Neg for Matrix3x3<T> {
     type Output = Self;
 
+    #[inline]
     fn neg(self) -> Self::Output {
         Self {
             mat: [
@@ -71,10 +60,12 @@ where
         }
     }
 }
+forward_ref_unop!(impl<T> Neg, neg for Matrix3x3<T> where T: SignedNumber);
 
 impl<T: SignedNumber> Add for Matrix3x3<T> {
     type Output = Self;
 
+    #[inline]
     fn add(self, rhs: Self) -> Self::Output {
         Self {
             mat: [
@@ -97,8 +88,10 @@ impl<T: SignedNumber> Add for Matrix3x3<T> {
         }
     }
 }
+forward_ref_binop!(impl<T> Add, add for Matrix3x3<T>, Matrix3x3<T> where T: SignedNumber);
 
 impl<T: SignedNumber> AddAssign for Matrix3x3<T> {
+    #[inline]
     fn add_assign(&mut self, rhs: Self) {
         self[0][0] += rhs[0][0];
         self[0][1] += rhs[0][1];
@@ -111,10 +104,12 @@ impl<T: SignedNumber> AddAssign for Matrix3x3<T> {
         self[2][2] += rhs[2][2];
     }
 }
+forward_ref_op_assign!(impl<T> AddAssign, add_assign for Matrix3x3<T>, Matrix3x3<T> where T: SignedNumber);
 
 impl<T: SignedNumber> Sub for Matrix3x3<T> {
     type Output = Self;
 
+    #[inline]
     fn sub(self, rhs: Self) -> Self::Output {
         Self {
             mat: [
@@ -137,63 +132,42 @@ impl<T: SignedNumber> Sub for Matrix3x3<T> {
         }
     }
 }
+forward_ref_binop!(impl<T> Sub, sub for Matrix3x3<T>, Matrix3x3<T> where T: SignedNumber);
 
 // Right-hand side scalar multiplication
 impl<T: SignedNumber> Mul<T> for Matrix3x3<T> {
     type Output = Self;
 
+    #[inline]
     fn mul(self, rhs: T) -> Self::Output {
         Self {
             mat: [self[0] * rhs, self[1] * rhs, self[2] * rhs],
         }
     }
 }
-
-// Left-hand side scalar multiplication needs to be implemented for each type separately
-impl Mul<Matrix3x3<i32>> for i32 {
-    type Output = Matrix3x3<i32>;
-
-    fn mul(self, rhs: Matrix3x3<i32>) -> Self::Output {
-        rhs * self
-    }
-}
-
-impl Mul<Matrix3x3<i64>> for i64 {
-    type Output = Matrix3x3<i64>;
-
-    fn mul(self, rhs: Matrix3x3<i64>) -> Self::Output {
-        rhs * self
-    }
-}
-
-impl Mul<Matrix3x3<f32>> for f32 {
-    type Output = Matrix3x3<f32>;
-
-    fn mul(self, rhs: Matrix3x3<f32>) -> Self::Output {
-        rhs * self
-    }
-}
-
-impl Mul<Matrix3x3<f64>> for f64 {
-    type Output = Matrix3x3<f64>;
-
-    fn mul(self, rhs: Matrix3x3<f64>) -> Self::Output {
-        rhs * self
-    }
+forward_ref_binop!(impl<T> Mul, mul for Matrix3x3<T>, T where T: SignedNumber);
+implement_scalar_lhs_mul! {
+    Matrix3x3<i32>, i32;
+    Matrix3x3<i64>, i64;
+    Matrix3x3<f32>, f32;
+    Matrix3x3<f64>, f64
 }
 
 impl<T: SignedNumber> MulAssign<T> for Matrix3x3<T> {
+    #[inline]
     fn mul_assign(&mut self, rhs: T) {
         self[0] *= rhs;
         self[1] *= rhs;
         self[2] *= rhs;
     }
 }
+forward_ref_op_assign!(impl<T> MulAssign, mul_assign for Matrix3x3<T>, T where T: SignedNumber);
 
 /// Right-hand side multiplication of a vector. Consider the vector as a column vector.
 impl<T: SignedNumber> Mul<Vector3<T>> for Matrix3x3<T> {
     type Output = Vector3<T>;
 
+    #[inline]
     fn mul(self, rhs: Vector3<T>) -> Self::Output {
         Vector3 {
             x: self[0].dot(&rhs),
@@ -202,11 +176,13 @@ impl<T: SignedNumber> Mul<Vector3<T>> for Matrix3x3<T> {
         }
     }
 }
+forward_ref_binop!(impl<T> Mul, mul for Matrix3x3<T>, Vector3<T> where T: SignedNumber);
 
 /// Left-hand side multiplication of a vector. Consider the vector as a row vector.
 impl<T: SignedNumber> Mul<Matrix3x3<T>> for Vector3<T> {
     type Output = Vector3<T>;
 
+    #[inline]
     fn mul(self, rhs: Matrix3x3<T>) -> Self::Output {
         Vector3 {
             x: self.x * rhs[0][0] + self.y * rhs[1][0] + self.z * rhs[2][0],
@@ -215,11 +191,13 @@ impl<T: SignedNumber> Mul<Matrix3x3<T>> for Vector3<T> {
         }
     }
 }
+forward_ref_binop!(impl<T> Mul, mul for Vector3<T>, Matrix3x3<T> where T: SignedNumber);
 
 // Matrix multiplication
 impl<T: SignedNumber> Mul<Matrix3x3<T>> for Matrix3x3<T> {
     type Output = Self;
 
+    #[inline]
     fn mul(self, rhs: Matrix3x3<T>) -> Self::Output {
         Self {
             mat: [
@@ -242,36 +220,65 @@ impl<T: SignedNumber> Mul<Matrix3x3<T>> for Matrix3x3<T> {
         }
     }
 }
+forward_ref_binop!(impl<T> Mul, mul for Matrix3x3<T>, Matrix3x3<T> where T: SignedNumber);
 
 // Division by scalar
 impl<T: SignedNumber> Div<T> for Matrix3x3<T> {
     type Output = Self;
 
+    #[inline]
     fn div(self, rhs: T) -> Self::Output {
         Self {
             mat: [self[0] / rhs, self[1] / rhs, self[2] / rhs],
         }
     }
 }
+forward_ref_binop!(impl<T> Div, div for Matrix3x3<T>, T where T: SignedNumber);
 
 // Division assignment by scalar
 impl<T: SignedNumber> DivAssign<T> for Matrix3x3<T> {
+    #[inline]
     fn div_assign(&mut self, rhs: T) {
-        self[0][0] /= rhs;
-        self[0][1] /= rhs;
-        self[0][2] /= rhs;
-        self[1][0] /= rhs;
-        self[1][1] /= rhs;
-        self[1][2] /= rhs;
-        self[2][0] /= rhs;
-        self[2][1] /= rhs;
-        self[2][2] /= rhs;
+        self[0] /= rhs;
+        self[1] /= rhs;
+        self[2] /= rhs;
+    }
+}
+forward_ref_op_assign!(impl<T> DivAssign, div_assign for Matrix3x3<T>, T where T: SignedNumber);
+
+impl<T: SignedNumber> From<&[T]> for Matrix3x3<T> {
+    #[inline]
+    fn from(slice: &[T]) -> Self {
+        Self::from_slice(slice)
+    }
+}
+
+impl<'a, T: SignedNumber> From<&'a [T]> for &'a Matrix3x3<T> {
+    #[inline]
+    fn from(slice: &'a [T]) -> Self {
+        debug_assert!(slice.len() >= 9, "Slice must have at least 9 elements");
+        unsafe { std::mem::transmute(&slice[0]) }
+    }
+}
+
+impl<T: SignedNumber> From<[T; 9]> for Matrix3x3<T> {
+    #[inline]
+    fn from(array: [T; 9]) -> Self {
+        Self::from_array(array)
+    }
+}
+
+impl<T: SignedNumber> From<[[T; 3]; 3]> for Matrix3x3<T> {
+    #[inline]
+    fn from(mat: [[T; 3]; 3]) -> Self {
+        Self::from_mat(mat)
     }
 }
 
 impl<T: SignedNumber> Index<usize> for Matrix3x3<T> {
     type Output = Vector3<T>;
 
+    #[inline]
     fn index(&self, index: usize) -> &Self::Output {
         debug_assert!(index < 3);
         &self.mat[index]
@@ -279,6 +286,7 @@ impl<T: SignedNumber> Index<usize> for Matrix3x3<T> {
 }
 
 impl<T: SignedNumber> IndexMut<usize> for Matrix3x3<T> {
+    #[inline]
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         debug_assert!(index < 3);
         &mut self.mat[index]
@@ -288,6 +296,7 @@ impl<T: SignedNumber> IndexMut<usize> for Matrix3x3<T> {
 impl<T: SignedNumber> Index<(usize, usize)> for Matrix3x3<T> {
     type Output = T;
 
+    #[inline]
     fn index(&self, index: (usize, usize)) -> &Self::Output {
         debug_assert!(index.0 < 3 && index.1 < 3);
         &self.mat[index.0][index.1]
@@ -295,6 +304,7 @@ impl<T: SignedNumber> Index<(usize, usize)> for Matrix3x3<T> {
 }
 
 impl<T: SignedNumber> IndexMut<(usize, usize)> for Matrix3x3<T> {
+    #[inline]
     fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
         debug_assert!(index.0 < 3 && index.1 < 3);
         &mut self.mat[index.0][index.1]

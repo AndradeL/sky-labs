@@ -17,19 +17,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use std::ops::Add;
-use std::ops::AddAssign;
-use std::ops::Div;
-use std::ops::DivAssign;
-use std::ops::Index;
-use std::ops::IndexMut;
-use std::ops::Mul;
-use std::ops::MulAssign;
-use std::ops::Neg;
-use std::ops::Sub;
-use std::ops::SubAssign;
+use std::ops::{
+    Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
+};
 
-use super::number::{Number, SignedNumber};
+use crate::math::number::{Number, SignedNumber};
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Default)]
 #[repr(C)]
@@ -42,6 +34,7 @@ pub struct Vector3<T: Number> {
 impl<T: SignedNumber> Neg for Vector3<T> {
     type Output = Self;
 
+    #[inline]
     fn neg(self) -> Self::Output {
         Self {
             x: -self.x,
@@ -50,10 +43,12 @@ impl<T: SignedNumber> Neg for Vector3<T> {
         }
     }
 }
+forward_ref_unop!(impl<T> Neg, neg for Vector3<T> where T: SignedNumber);
 
 impl<T: Number> Add for Vector3<T> {
     type Output = Self;
 
+    #[inline]
     fn add(self, rhs: Self) -> Self::Output {
         Self {
             x: self.x + rhs.x,
@@ -62,18 +57,22 @@ impl<T: Number> Add for Vector3<T> {
         }
     }
 }
+forward_ref_binop!(impl<T> Add, add for Vector3<T>, Vector3<T> where T: Number);
 
 impl<T: Number> AddAssign for Vector3<T> {
+    #[inline]
     fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
         self.y += rhs.y;
         self.z += rhs.z;
     }
 }
+forward_ref_op_assign!(impl<T> AddAssign, add_assign for Vector3<T>, Vector3<T> where T: Number);
 
 impl<T: Number> Sub for Vector3<T> {
     type Output = Self;
 
+    #[inline]
     fn sub(self, rhs: Self) -> Self::Output {
         Self {
             x: self.x - rhs.x,
@@ -82,18 +81,22 @@ impl<T: Number> Sub for Vector3<T> {
         }
     }
 }
+forward_ref_binop!(impl<T> Sub, sub for Vector3<T>, Vector3<T> where T: Number);
 
 impl<T: Number> SubAssign for Vector3<T> {
+    #[inline]
     fn sub_assign(&mut self, rhs: Self) {
         self.x -= rhs.x;
         self.y -= rhs.y;
         self.z -= rhs.z;
     }
 }
+forward_ref_op_assign!(impl<T> SubAssign, sub_assign for Vector3<T>, Vector3<T> where T: Number);
 
 impl<T: Number> Mul<T> for Vector3<T> {
     type Output = Self;
 
+    #[inline]
     fn mul(self, rhs: T) -> Self::Output {
         Self {
             x: self.x * rhs,
@@ -102,66 +105,30 @@ impl<T: Number> Mul<T> for Vector3<T> {
         }
     }
 }
-
-impl Mul<Vector3<u32>> for u32 {
-    type Output = Vector3<u32>;
-
-    fn mul(self, rhs: Vector3<u32>) -> Self::Output {
-        rhs * self
-    }
-}
-
-impl Mul<Vector3<u64>> for u64 {
-    type Output = Vector3<u64>;
-
-    fn mul(self, rhs: Vector3<u64>) -> Self::Output {
-        rhs * self
-    }
-}
-
-impl Mul<Vector3<i32>> for i32 {
-    type Output = Vector3<i32>;
-
-    fn mul(self, rhs: Vector3<i32>) -> Self::Output {
-        rhs * self
-    }
-}
-
-impl Mul<Vector3<i64>> for i64 {
-    type Output = Vector3<i64>;
-
-    fn mul(self, rhs: Vector3<i64>) -> Self::Output {
-        rhs * self
-    }
-}
-
-impl Mul<Vector3<f32>> for f32 {
-    type Output = Vector3<f32>;
-
-    fn mul(self, rhs: Vector3<f32>) -> Self::Output {
-        rhs * self
-    }
-}
-
-impl Mul<Vector3<f64>> for f64 {
-    type Output = Vector3<f64>;
-
-    fn mul(self, rhs: Vector3<f64>) -> Self::Output {
-        rhs * self
-    }
+forward_ref_binop!(impl<T> Mul, mul for Vector3<T>, T where T: Number);
+implement_scalar_lhs_mul! {
+    Vector3<u32>, u32;
+    Vector3<u64>, u64;
+    Vector3<i32>, i32;
+    Vector3<i64>, i64;
+    Vector3<f32>, f32;
+    Vector3<f64>, f64
 }
 
 impl<T: Number> MulAssign<T> for Vector3<T> {
+    #[inline]
     fn mul_assign(&mut self, rhs: T) {
         self.x *= rhs;
         self.y *= rhs;
         self.z *= rhs;
     }
 }
+forward_ref_op_assign!(impl<T> MulAssign, mul_assign for Vector3<T>, T where T: Number);
 
 impl<T: Number> Div<T> for Vector3<T> {
     type Output = Self;
 
+    #[inline]
     fn div(self, rhs: T) -> Self::Output {
         Self {
             x: self.x / rhs,
@@ -170,18 +137,53 @@ impl<T: Number> Div<T> for Vector3<T> {
         }
     }
 }
+forward_ref_binop!(impl<T> Div, div for Vector3<T>, T where T: Number);
 
 impl<T: Number> DivAssign<T> for Vector3<T> {
+    #[inline]
     fn div_assign(&mut self, rhs: T) {
         self.x /= rhs;
         self.y /= rhs;
         self.z /= rhs;
     }
 }
+forward_ref_op_assign!(impl<T> DivAssign, div_assign for Vector3<T>, T where T: Number);
+
+impl<T: Number> From<&[T]> for Vector3<T> {
+    #[inline]
+    fn from(slice: &[T]) -> Self {
+        debug_assert!(slice.len() >= 3, "Slice must have at least 3 elements");
+        Self {
+            x: slice[0],
+            y: slice[1],
+            z: slice[2],
+        }
+    }
+}
+
+impl<'a, T: Number> From<&'a [T]> for &'a Vector3<T> {
+    #[inline]
+    fn from(slice: &'a [T]) -> Self {
+        debug_assert!(slice.len() >= 3, "Slice must have at least 3 elements");
+        unsafe { std::mem::transmute(&slice[0]) }
+    }
+}
+
+impl<T: Number> From<[T; 3]> for Vector3<T> {
+    #[inline]
+    fn from(array: [T; 3]) -> Self {
+        Self {
+            x: array[0],
+            y: array[1],
+            z: array[2],
+        }
+    }
+}
 
 impl<T: Number> Index<usize> for Vector3<T> {
     type Output = T;
 
+    #[inline]
     fn index(&self, index: usize) -> &Self::Output {
         debug_assert!(index < 3);
         self.as_slice().index(index)
@@ -189,6 +191,7 @@ impl<T: Number> Index<usize> for Vector3<T> {
 }
 
 impl<T: Number> IndexMut<usize> for Vector3<T> {
+    #[inline]
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         debug_assert!(index < 3);
         self.as_mut_slice().index_mut(index)
@@ -469,6 +472,13 @@ impl Into<D2D_VECTOR_3F> for Vector3<f32> {
 }
 
 #[cfg(target_os = "windows")]
+impl<'a> Into<&'a D2D_VECTOR_3F> for &'a Vector3<f32> {
+    fn into(self) -> &'a D2D_VECTOR_3F {
+        unsafe { std::mem::transmute(self) }
+    }
+}
+
+#[cfg(target_os = "windows")]
 impl From<D2D_VECTOR_3F> for Vector3<f32> {
     fn from(value: D2D_VECTOR_3F) -> Self {
         Self {
@@ -476,5 +486,12 @@ impl From<D2D_VECTOR_3F> for Vector3<f32> {
             y: value.y,
             z: value.z,
         }
+    }
+}
+
+#[cfg(target_os = "windows")]
+impl<'a> From<&'a D2D_VECTOR_3F> for &'a Vector3<f32> {
+    fn from(value: &'a D2D_VECTOR_3F) -> Self {
+        unsafe { std::mem::transmute(value) }
     }
 }

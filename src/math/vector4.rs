@@ -17,20 +17,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use std::ops::Add;
-use std::ops::AddAssign;
-use std::ops::Div;
-use std::ops::DivAssign;
-use std::ops::Index;
-use std::ops::IndexMut;
-use std::ops::Mul;
-use std::ops::MulAssign;
-use std::ops::Neg;
-use std::ops::Sub;
-use std::ops::SubAssign;
+use std::ops::{
+    Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
+};
 
-use crate::math::Number;
-use crate::math::Vector3;
+use crate::math::{Number, SignedNumber, Vector3};
 
 /// A 4D vector with generic number type.
 /// It can be used for various mathematical operations such as addition, subtraction, multiplication, and division.
@@ -45,10 +36,7 @@ pub struct Vector4<T: Number> {
     pub w: T,
 }
 
-impl<T> Neg for Vector4<T>
-where
-    T: Number + Neg<Output = T>,
-{
+impl<T: SignedNumber> Neg for Vector4<T> {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
@@ -60,6 +48,7 @@ where
         }
     }
 }
+forward_ref_unop!(impl<T> Neg, neg for Vector4<T> where T: SignedNumber);
 
 impl<T: Number> Add for Vector4<T> {
     type Output = Self;
@@ -73,6 +62,7 @@ impl<T: Number> Add for Vector4<T> {
         }
     }
 }
+forward_ref_binop!(impl<T> Add, add for Vector4<T>, Vector4<T> where T: Number);
 
 impl<T: Number> AddAssign for Vector4<T> {
     fn add_assign(&mut self, rhs: Self) {
@@ -82,6 +72,7 @@ impl<T: Number> AddAssign for Vector4<T> {
         self.w += rhs.w;
     }
 }
+forward_ref_op_assign!(impl<T> AddAssign, add_assign for Vector4<T>, Vector4<T> where T: Number);
 
 impl<T: Number> Sub for Vector4<T> {
     type Output = Self;
@@ -95,6 +86,7 @@ impl<T: Number> Sub for Vector4<T> {
         }
     }
 }
+forward_ref_binop!(impl<T> Sub, sub for Vector4<T>, Vector4<T> where T: Number);
 
 impl<T: Number> SubAssign for Vector4<T> {
     fn sub_assign(&mut self, rhs: Self) {
@@ -104,6 +96,7 @@ impl<T: Number> SubAssign for Vector4<T> {
         self.w -= rhs.w;
     }
 }
+forward_ref_op_assign!(impl<T> SubAssign, sub_assign for Vector4<T>, Vector4<T> where T: Number);
 
 impl<T: Number> Mul<T> for Vector4<T> {
     type Output = Self;
@@ -117,53 +110,14 @@ impl<T: Number> Mul<T> for Vector4<T> {
         }
     }
 }
-
-impl Mul<Vector4<u32>> for u32 {
-    type Output = Vector4<u32>;
-
-    fn mul(self, rhs: Vector4<u32>) -> Self::Output {
-        rhs * self
-    }
-}
-
-impl Mul<Vector4<u64>> for u64 {
-    type Output = Vector4<u64>;
-
-    fn mul(self, rhs: Vector4<u64>) -> Self::Output {
-        rhs * self
-    }
-}
-
-impl Mul<Vector4<i32>> for i32 {
-    type Output = Vector4<i32>;
-
-    fn mul(self, rhs: Vector4<i32>) -> Self::Output {
-        rhs * self
-    }
-}
-
-impl Mul<Vector4<i64>> for i64 {
-    type Output = Vector4<i64>;
-
-    fn mul(self, rhs: Vector4<i64>) -> Self::Output {
-        rhs * self
-    }
-}
-
-impl Mul<Vector4<f32>> for f32 {
-    type Output = Vector4<f32>;
-
-    fn mul(self, rhs: Vector4<f32>) -> Self::Output {
-        rhs * self
-    }
-}
-
-impl Mul<Vector4<f64>> for f64 {
-    type Output = Vector4<f64>;
-
-    fn mul(self, rhs: Vector4<f64>) -> Self::Output {
-        rhs * self
-    }
+forward_ref_binop!(impl<T> Mul, mul for Vector4<T>, T where T: Number);
+implement_scalar_lhs_mul! {
+    Vector4<u32>, u32;
+    Vector4<u64>, u64;
+    Vector4<i32>, i32;
+    Vector4<i64>, i64;
+    Vector4<f32>, f32;
+    Vector4<f64>, f64
 }
 
 impl<T: Number> MulAssign<T> for Vector4<T> {
@@ -174,6 +128,7 @@ impl<T: Number> MulAssign<T> for Vector4<T> {
         self.w *= rhs;
     }
 }
+forward_ref_op_assign!(impl<T> MulAssign, mul_assign for Vector4<T>, T where T: Number);
 
 impl<T: Number> Div<T> for Vector4<T> {
     type Output = Self;
@@ -187,6 +142,7 @@ impl<T: Number> Div<T> for Vector4<T> {
         }
     }
 }
+forward_ref_binop!(impl<T> Div, div for Vector4<T>, T where T: Number);
 
 impl<T: Number> DivAssign<T> for Vector4<T> {
     fn div_assign(&mut self, rhs: T) {
@@ -196,6 +152,7 @@ impl<T: Number> DivAssign<T> for Vector4<T> {
         self.w /= rhs;
     }
 }
+forward_ref_op_assign!(impl<T> DivAssign, div_assign for Vector4<T>, T where T: Number);
 
 impl<T: Number> Index<usize> for Vector4<T> {
     type Output = T;
@@ -210,6 +167,39 @@ impl<T: Number> IndexMut<usize> for Vector4<T> {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         debug_assert!(index < 4);
         self.as_mut_slice().index_mut(index)
+    }
+}
+
+impl<T: Number> From<&[T]> for Vector4<T> {
+    #[inline]
+    fn from(slice: &[T]) -> Self {
+        debug_assert!(slice.len() >= 4, "Slice must have at least 4 elements");
+        Self {
+            x: slice[0],
+            y: slice[1],
+            z: slice[2],
+            w: slice[3],
+        }
+    }
+}
+
+impl<'a, T: Number> From<&'a [T]> for &'a Vector4<T> {
+    #[inline]
+    fn from(slice: &'a [T]) -> Self {
+        debug_assert!(slice.len() >= 4, "Slice must have at least 4 elements");
+        unsafe { std::mem::transmute(&slice[0]) }
+    }
+}
+
+impl<T: Number> From<[T; 4]> for Vector4<T> {
+    #[inline]
+    fn from(array: [T; 4]) -> Self {
+        Self {
+            x: array[0],
+            y: array[1],
+            z: array[2],
+            w: array[3],
+        }
     }
 }
 
@@ -318,6 +308,13 @@ impl Into<D2D_VECTOR_4F> for Vector4<f32> {
 }
 
 #[cfg(target_os = "windows")]
+impl<'a> Into<&'a D2D_VECTOR_4F> for &'a Vector4<f32> {
+    fn into(self) -> &'a D2D_VECTOR_4F {
+        unsafe { std::mem::transmute(self) }
+    }
+}
+
+#[cfg(target_os = "windows")]
 impl From<D2D_VECTOR_4F> for Vector4<f32> {
     fn from(value: D2D_VECTOR_4F) -> Self {
         Self {
@@ -326,5 +323,12 @@ impl From<D2D_VECTOR_4F> for Vector4<f32> {
             z: value.z,
             w: value.w,
         }
+    }
+}
+
+#[cfg(target_os = "windows")]
+impl<'a> From<&'a D2D_VECTOR_4F> for &'a Vector4<f32> {
+    fn from(value: &'a D2D_VECTOR_4F) -> Self {
+        unsafe { std::mem::transmute(value) }
     }
 }
