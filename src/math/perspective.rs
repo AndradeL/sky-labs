@@ -17,34 +17,40 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#[macro_use]
-mod internal_macros;
+use super::Matrix4x4;
 
-mod matrix3x3;
-mod matrix4x4;
-mod number;
-mod perspective;
-mod rect;
-mod size;
-mod vector2;
-mod vector3;
-mod vector4;
+pub fn perspective_f32(
+    horizontal_fov: f32,
+    aspect_ratio: f32,
+    near_field: f32,
+    far_field: f32,
+) -> Matrix4x4<f32> {
+    let focal_length = 1.0 / (horizontal_fov / 2.0).tan();
+    let range_inv = 1.0 / (far_field - near_field);
+    let far_range = far_field * range_inv;
 
-pub use self::matrix3x3::Matrix3x3;
-pub use self::matrix4x4::Matrix4x4;
-pub use self::number::Wrap;
-pub(crate) use self::number::*;
-pub use self::perspective::*;
-pub use self::rect::Rect;
-pub use self::size::Size;
-pub use self::vector2::Vector2;
-pub use self::vector3::Vector3;
-pub use self::vector4::Vector4;
+    Matrix4x4::from_mat([
+        [focal_length / aspect_ratio, 0.0, 0.0, 0.0],
+        [0.0, focal_length, 0.0, 0.0],
+        [0.0, 0.0, far_range, -1.0 * near_field * far_range],
+        [0.0, 0.0, 1.0, 0.0],
+    ])
+}
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Direction {
-    North,
-    East,
-    South,
-    West,
+pub fn perspective_f64(
+    horizontal_fov: f64,
+    aspect_ratio: f64,
+    near_field: f64,
+    far_field: f64,
+) -> Matrix4x4<f64> {
+    let focal_length = 1.0 / (horizontal_fov / 2.0).tan();
+    let range_inv = 1.0 / (far_field - near_field);
+    let far_range = far_field * range_inv;
+
+    Matrix4x4::from_mat([
+        [focal_length / aspect_ratio, 0.0, 0.0, 0.0],
+        [0.0, focal_length, 0.0, 0.0],
+        [0.0, 0.0, far_range, -1.0 * near_field * far_range],
+        [0.0, 0.0, 1.0, 0.0],
+    ])
 }
