@@ -18,15 +18,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use windows::core::*;
-use windows::Win32::Foundation::*;
+use windows::Win32::Foundation::{BOOL, *};
 use windows::Win32::Graphics::{Direct3D12::*, DirectWrite::*};
 use windows::Win32::System::Com::*;
 use windows::Win32::UI::HiDpi::GetDpiForWindow;
-use windows_core::*;
 use windows_implement::implement;
 
-use crate::math::Vector2;
-use crate::renderer::{Color, Rect, Renderer};
+use crate::math::*;
+use crate::renderer::*;
 
 use super::TextFormat;
 
@@ -216,12 +215,12 @@ impl<'a> IDWriteTextRenderer1_Impl for Direct3D12TextRenderer_Impl<'a> {
                         - metric.topSideBearing
                         - metric.bottomSideBearing) as f32,
                 };
-                let color = Color {
-                    r: 127.0,
-                    g: 127.0,
-                    b: 127.0,
+                let color: Color<f32> = Color {
+                    r: 0.5,
+                    g: 0.5,
+                    b: 0.5,
+                    a: 1.0,
                 };
-                self.renderer.draw_rectangle(&rect, &color);
                 offset_x += metric.advanceWidth as f32;
             }
         }
@@ -281,7 +280,7 @@ impl<'a> IDWritePixelSnapping_Impl for Direct3D12TextRenderer_Impl<'a> {
         _clientdrawingcontext: *const core::ffi::c_void,
         transform: *mut DWRITE_MATRIX,
     ) -> Result<()> {
-        let mut transform = unsafe { transform.as_mut() };
+        let transform = unsafe { transform.as_mut() };
         let transform = match transform {
             Some(t) => t,
             None => return Err(Error::from_hresult(E_POINTER)),

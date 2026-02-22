@@ -128,7 +128,10 @@ impl Drop for Win32Window {
         // Destroys the window and wait for it to end itself.
         unsafe {
             let _ = DestroyWindow(self.window_handle);
-            self.process_until_end();
+            let mut message = MSG::default();
+            if PeekMessageW(&mut message, None, 0, 0, PM_NOREMOVE).as_bool() {
+                self.process_until_end();
+            }
         }
     }
 }
